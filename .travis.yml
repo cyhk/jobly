@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - '10'
+services:
+  - postgresql
+script:
+  - createdb jobly-test
+  - psql jobly-test < seed.sql
+  - jest --silent --verbose company.test.js
+  - jest --silent --verbose companies.test.js
