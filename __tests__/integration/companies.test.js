@@ -1,5 +1,3 @@
-process.env.NODE_ENV = "test";
-
 const db = require("../../db");
 const app = require("../../app");
 const request = require("supertest");
@@ -11,17 +9,17 @@ describe("Test Company Routes", () => {
     beforeEach(async function () {
       await db.query(`DELETE FROM companies`);
       await db.query(`
-        INSERT INTO companies (handle, name, num_employees, description, logo_url)
+        INSERT INTO companies (handle, name, employees, description, logo_url)
         VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
       `);
 
       await db.query(`
-        INSERT INTO companies (handle, name, num_employees, description, logo_url)
+        INSERT INTO companies (handle, name, employees, description, logo_url)
         VALUES ('TEST2', 'Test2 Co. Ltd', 187, 'A second test company for tests', 'https://bit.ly/2JFIhMB');
       `);
 
       await db.query(`
-        INSERT INTO companies (handle, name, num_employees, description, logo_url)
+        INSERT INTO companies (handle, name, employees, description, logo_url)
         VALUES ('TEST3', 'Test3 Co. Ltd', 15, 'A third test company for tests', 'https://bit.ly/2NVIkHV');
       `);
     });
@@ -51,7 +49,7 @@ describe("Test Company Routes", () => {
       }
     );
 
-    test("should get all companies when all filters are given",
+    test("should get matching companies when all filters are given",
       async function () {
         const response = await request(app)
           .get("/companies")
@@ -187,7 +185,7 @@ describe("Test Company Routes", () => {
         expect(response.statusCode).toBe(400);
         expect(companies).toEqual({
           status: 400,
-          message: "min employees cannot be larger than max employees"
+          message: "Min employees cannot be larger than max employees"
         });
       }
     );
@@ -197,7 +195,7 @@ describe("Test Company Routes", () => {
     beforeEach(async function () {
       await db.query(`DELETE FROM companies`);
       await db.query(`
-        INSERT INTO companies (handle, name, num_employees, description, logo_url)
+        INSERT INTO companies (handle, name, employees, description, logo_url)
         VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
       `);
     });
@@ -209,8 +207,8 @@ describe("Test Company Routes", () => {
           .send({
             handle: "EARTH",
             name: "Planet Earth",
-            num_employees: 13,
-            description: "Is this a real company?"
+            employees: 13,
+            description: "Is this a real company?",
           });
         const company = response.body;
 
@@ -218,9 +216,9 @@ describe("Test Company Routes", () => {
         expect(company).toEqual({company: {
           handle: "EARTH",
           name: "Planet Earth",
-          num_employees: 13,
+          employees: 13,
           description: "Is this a real company?",
-          logo_url: null
+          logo_url: ""
         }});
       }
     );
@@ -230,7 +228,7 @@ describe("Test Company Routes", () => {
         const response = await request(app)
           .post("/companies")
           .send({
-            num_employees: -1523,
+            employees: -1523,
           });
         const companies = response.body;
 
@@ -240,7 +238,7 @@ describe("Test Company Routes", () => {
           message: [
                   "instance requires property \"handle\"",
                   "instance requires property \"name\"",
-                  "instance.num_employees must have a minimum value of 0"
+                  "instance.employees must have a minimum value of 0"
                   ]
         });
       }
@@ -251,8 +249,14 @@ describe("Test Company Routes", () => {
     beforeEach(async function () {
       await db.query(`DELETE FROM companies`);
       await db.query(`
-        INSERT INTO companies (handle, name, num_employees, description, logo_url)
+        INSERT INTO companies (handle, name, employees, description, logo_url)
         VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
+      `);
+
+      await db.query(`
+        INSERT INTO jobs (title, salary, equity, company_handle)
+        VALUES ('CEO', 100.01, 0.3, 'TEST1')
+        RETURNING id;
       `);
     });
 
@@ -266,9 +270,14 @@ describe("Test Company Routes", () => {
         expect(company).toEqual({company: {
           handle: "TEST1",
           name: "Test1 Co. Ltd",
-          num_employees: 49,
+          employees: 49,
           description: "A test company for tests",
-          logo_url: "https://bit.ly/2LWkdq5"
+          logo_url: "https://bit.ly/2LWkdq5",
+          jobs: [{
+            id: expect.any(Number),
+            title: "CEO",
+            date_posted: expect.any(String)
+          }]
         }});
       }
     );
@@ -292,7 +301,7 @@ describe("Test Company Routes", () => {
     beforeEach(async function () {
       await db.query(`DELETE FROM companies`);
       await db.query(`
-        INSERT INTO companies (handle, name, num_employees, description, logo_url)
+        INSERT INTO companies (handle, name, employees, description, logo_url)
         VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
       `);
     });
@@ -302,7 +311,7 @@ describe("Test Company Routes", () => {
         const response = await request(app)
           .patch("/companies/TEST1")
           .send({
-            num_employees: 1000
+            employees: 1000
           });
         const company = response.body;
 
@@ -310,7 +319,7 @@ describe("Test Company Routes", () => {
         expect(company).toEqual({ company: {
           handle: "TEST1",
           name: "Test1 Co. Ltd",
-          num_employees: 1000,
+          employees: 1000,
           description: "A test company for tests",
           logo_url: "https://bit.ly/2LWkdq5"
         }});
@@ -322,7 +331,7 @@ describe("Test Company Routes", () => {
         const response = await request(app)
         .patch("/companies/LJKD")
         .send({
-          num_employees: 1000
+          employees: 1000
         });
         const company = response.body;
 
@@ -339,7 +348,7 @@ describe("Test Company Routes", () => {
         const response = await request(app)
         .patch("/companies/LJKD")
         .send({
-          num_employees: -3984
+          employees: -3984
         });
         const company = response.body;
 
@@ -347,7 +356,7 @@ describe("Test Company Routes", () => {
         expect(company).toEqual({
           status: 400,
           message: [ 
-            'instance.num_employees must have a minimum value of 0'
+            'instance.employees must have a minimum value of 0'
           ]
         });
       }
@@ -358,7 +367,7 @@ describe("Test Company Routes", () => {
     beforeEach(async function () {
       await db.query(`DELETE FROM companies`);
       await db.query(`
-        INSERT INTO companies (handle, name, num_employees, description, logo_url)
+        INSERT INTO companies (handle, name, employees, description, logo_url)
         VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
       `);
     });

@@ -29,10 +29,10 @@
       ],
       "pattern": "^(.*)$"
     },
-    "num_employees": {
-      "$id": "#/properties/num_employees",
+    "employees": {
+      "$id": "#/properties/employees",
       "type": "integer",
-      "title": "The Num_employees Schema",
+      "title": "The Employees Schema",
       "default": 0,
       "examples": [
         13

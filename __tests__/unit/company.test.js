@@ -1,7 +1,4 @@
-process.env.NODE_ENV = "test";
-
 const db = require("../../db");
-const app = require("../../app");
 const Company = require("../../models/company");
 
 describe("Test Company Class", () => {
@@ -10,7 +7,7 @@ describe("Test Company Class", () => {
     beforeEach(async function () {
       await db.query(`DELETE FROM companies`);
       await db.query(`
-        INSERT INTO companies (handle, name, num_employees, description, logo_url)
+        INSERT INTO companies (handle, name, employees, description, logo_url)
         VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
       `);
     });
@@ -20,7 +17,7 @@ describe("Test Company Class", () => {
         const newCompany = {
           handle: "EARTH",
           name: "Planet Earth",
-          num_employees: 13,
+          employees: 13,
           description: "Is this a real company?"
         }
         const company = await Company.create(newCompany);
@@ -28,9 +25,9 @@ describe("Test Company Class", () => {
         expect(company).toEqual({
           handle: "EARTH",
           name: "Planet Earth",
-          num_employees: 13,
+          employees: 13,
           description: "Is this a real company?",
-          logo_url: null
+          logo_url: ""
         });
       }
     );
@@ -40,7 +37,7 @@ describe("Test Company Class", () => {
     beforeEach(async function () {
       await db.query(`DELETE FROM companies`);
       await db.query(`
-        INSERT INTO companies (handle, name, num_employees, description, logo_url)
+        INSERT INTO companies (handle, name, employees, description, logo_url)
         VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
       `);
     });
@@ -127,7 +124,7 @@ describe("Test Company Class", () => {
           min_employees: 100
         }))
         .rejects
-        .toThrow("min employees cannot be larger than max employees");
+        .toThrow("Min employees cannot be larger than max employees");
       }
     );
   });
@@ -136,8 +133,14 @@ describe("Test Company Class", () => {
     beforeEach(async function () {
       await db.query(`DELETE FROM companies`);
       await db.query(`
-        INSERT INTO companies (handle, name, num_employees, description, logo_url)
+        INSERT INTO companies (handle, name, employees, description, logo_url)
         VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
+      `);
+
+      await db.query(`
+        INSERT INTO jobs (title, salary, equity, company_handle)
+        VALUES ('CEO', 100.01, 0.3, 'TEST1')
+        RETURNING id;
       `);
     });
 
@@ -148,9 +151,14 @@ describe("Test Company Class", () => {
         expect(company).toEqual({
           handle: "TEST1",
           name: "Test1 Co. Ltd",
-          num_employees: 49,
+          employees: 49,
           description: "A test company for tests",
-          logo_url: "https://bit.ly/2LWkdq5"
+          logo_url: "https://bit.ly/2LWkdq5",
+          jobs: [{
+            id: expect.any(Number),
+            title: "CEO",
+            date_posted: expect.any(Date)
+          }]
         });
       }
     );
@@ -168,7 +176,7 @@ describe("Test Company Class", () => {
     beforeEach(async function () {
       await db.query(`DELETE FROM companies`);
       await db.query(`
-        INSERT INTO companies (handle, name, num_employees, description, logo_url)
+        INSERT INTO companies (handle, name, employees, description, logo_url)
         VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
       `);
     });
@@ -177,16 +185,16 @@ describe("Test Company Class", () => {
       async function () {
         const valsToUpdate = {
           name: "LotsOfTests Co. Ltd",
-          num_employees: 1000,
+          employees: 1000,
         };
         const company = await Company.update('TEST1', valsToUpdate);
 
         expect(company).toEqual({
           handle: "TEST1",
           name: "LotsOfTests Co. Ltd",
-          num_employees: 1000,
+          employees: 1000,
           description: "A test company for tests",
-          logo_url: "https://bit.ly/2LWkdq5"
+          logo_url: "https://bit.ly/2LWkdq5",
         })
       }
     );
@@ -195,7 +203,7 @@ describe("Test Company Class", () => {
       async () => {
         const valsToUpdate = {
           name: "LotsOfTests Co. Ltd",
-          num_employees: 1000,
+          employees: 1000,
         }
 
         await expect(Company.update("KLJF", valsToUpdate))
@@ -209,7 +217,7 @@ describe("Test Company Class", () => {
     beforeEach(async function () {
       await db.query(`DELETE FROM companies`);
       await db.query(`
-        INSERT INTO companies (handle, name, num_employees, description, logo_url)
+        INSERT INTO companies (handle, name, employees, description, logo_url)
         VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
       `);
     });
