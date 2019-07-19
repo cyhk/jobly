@@ -6,5 +6,4 @@ services:
 script:
   - createdb jobly-test
   - psql jobly-test < seed.sql
-  - jest --silent --verbose company.test.js
-  - jest --silent --verbose companies.test.js
+  - jest -i --silent --verbose
