@@ -2,24 +2,26 @@ const db = require("../../db");
 const Job = require("../../models/job");
 
 describe("Test Job Class", () => {
+  let id = null;
+  beforeEach(async function () {
+    await db.query(`DELETE FROM jobs`);
+    await db.query(`DELETE FROM companies`);
+    
+    await db.query(`
+      INSERT INTO companies (handle, name, employees, description, logo_url)
+      VALUES ('TEST1', 'Test1 Co. Ltd', 187, 'A test company for tests', 'https://bit.ly/2JFIhMB');
+    `);
+    
+    let response = await db.query(`
+      INSERT INTO jobs (title, salary, equity, company_handle)
+      VALUES ('CEO', 100.01, 0.3, 'TEST1')
+      RETURNING id;
+    `);
+
+    id = response.rows[0].id;
+  });
 
   describe("create()", () => {
-    beforeEach(async function () {
-      await db.query(`DELETE FROM jobs`);
-      await db.query(`DELETE FROM companies`);
-      
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 187, 'A test company for tests', 'https://bit.ly/2JFIhMB');
-      `);
-      
-      await db.query(`
-        INSERT INTO jobs (title, salary, equity, company_handle)
-        VALUES ('CEO', 100.01, 0.3, 'TEST1')
-        RETURNING id;
-      `);
-    });
-
     test("should add job to database",
       async function () {
         const newJob = {
@@ -43,21 +45,6 @@ describe("Test Job Class", () => {
   });
 
   describe("all()", () => {
-    beforeEach(async function () {
-      await db.query(`DELETE FROM jobs`);
-      await db.query(`DELETE FROM companies`);
-      
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 187, 'A test company for tests', 'https://bit.ly/2JFIhMB');
-      `);
-      
-      await db.query(`
-        INSERT INTO jobs (title, salary, equity, company_handle)
-        VALUES ('CEO', 100.01, 0.3, 'TEST1');
-      `);
-    });
-
     test("get all jobs",
       async function () {
         const jobs = await Job.all({});
@@ -135,25 +122,6 @@ describe("Test Job Class", () => {
   });
 
   describe("get()", () => {
-    let id = null;
-    beforeEach(async function () {
-      await db.query(`DELETE FROM jobs`);
-      await db.query(`DELETE FROM companies`);
-      
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 187, 'A test company for tests', 'https://bit.ly/2JFIhMB');
-      `);
-      
-      let response = await db.query(`
-        INSERT INTO jobs (title, salary, equity, company_handle)
-        VALUES ('CEO', 100.01, 0.3, 'TEST1')
-        RETURNING id;
-      `);
-
-      id = response.rows[0].id;
-    });
-
     test("should get a job",
       async function () {
         const job = await Job.get(id);
@@ -179,25 +147,6 @@ describe("Test Job Class", () => {
   });
 
   describe("update()", () => {
-    let id = null;
-    beforeEach(async function () {
-      await db.query(`DELETE FROM jobs`);
-      await db.query(`DELETE FROM companies`);
-      
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 187, 'A test company for tests', 'https://bit.ly/2JFIhMB');
-      `);
-      
-      let response = await db.query(`
-        INSERT INTO jobs (title, salary, equity, company_handle)
-        VALUES ('CEO', 100.01, 0.3, 'TEST1')
-        RETURNING id;
-      `);
-
-      id = response.rows[0].id;
-    });
-
     test("should update a job",
       async function () {
         const valsToUpdate = {
@@ -230,25 +179,6 @@ describe("Test Job Class", () => {
   });
 
   describe("delete()", () => {
-    let id = null;
-    beforeEach(async function () {
-      await db.query(`DELETE FROM jobs`);
-      await db.query(`DELETE FROM companies`);
-      
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 187, 'A test company for tests', 'https://bit.ly/2JFIhMB');
-      `);
-      
-      let response = await db.query(`
-        INSERT INTO jobs (title, salary, equity, company_handle)
-        VALUES ('CEO', 100.01, 0.3, 'TEST1')
-        RETURNING id;
-      `);
-
-      id = response.rows[0].id;
-    });
-
     test("should delete a job",
       async function () {
         const job = await Job.delete(id);

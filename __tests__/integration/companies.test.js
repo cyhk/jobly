@@ -3,27 +3,31 @@ const app = require("../../app");
 const request = require("supertest");
 
 describe("Test Company Routes", () => {
+  beforeEach(async function () {
+    await db.query(`DELETE FROM companies`);
+    await db.query(`
+      INSERT INTO companies (handle, name, employees, description, logo_url)
+      VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
+    `);
+
+    await db.query(`
+      INSERT INTO companies (handle, name, employees, description, logo_url)
+      VALUES ('TEST2', 'Test2 Co. Ltd', 187, 'A second test company for tests', 'https://bit.ly/2JFIhMB');
+    `);
+
+    await db.query(`
+      INSERT INTO companies (handle, name, employees, description, logo_url)
+      VALUES ('TEST3', 'Test3 Co. Ltd', 15, 'A third test company for tests', 'https://bit.ly/2NVIkHV');
+    `);
+
+    await db.query(`
+      INSERT INTO jobs (title, salary, equity, company_handle)
+      VALUES ('CEO', 100.01, 0.3, 'TEST1')
+      RETURNING id;
+    `);
+  });
 
   describe("GET /companies/ - Gets all companies matching query parameters (if any)", () => {
-
-    beforeEach(async function () {
-      await db.query(`DELETE FROM companies`);
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
-      `);
-
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST2', 'Test2 Co. Ltd', 187, 'A second test company for tests', 'https://bit.ly/2JFIhMB');
-      `);
-
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST3', 'Test3 Co. Ltd', 15, 'A third test company for tests', 'https://bit.ly/2NVIkHV');
-      `);
-    });
-
     test("should get all companies when no filters are given",
       async function () {
         const response = await request(app)
@@ -192,14 +196,6 @@ describe("Test Company Routes", () => {
   });
 
   describe("POST /companies/ - creates new company", () => {
-    beforeEach(async function () {
-      await db.query(`DELETE FROM companies`);
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
-      `);
-    });
-
     test("should create new company",
       async function () {
         const response = await request(app)
@@ -229,6 +225,7 @@ describe("Test Company Routes", () => {
           .post("/companies")
           .send({
             employees: -1523,
+            logo_url: "hi..."
           });
         const companies = response.body;
 
@@ -238,7 +235,8 @@ describe("Test Company Routes", () => {
           message: [
                   "instance requires property \"handle\"",
                   "instance requires property \"name\"",
-                  "instance.employees must have a minimum value of 0"
+                  "instance.employees must have a minimum value of 0",
+                  "instance.logo_url does not conform to the \"uri\" format"
                   ]
         });
       }
@@ -246,20 +244,6 @@ describe("Test Company Routes", () => {
   });
 
   describe("GET /companies/:handle - gets a specific company", () => {
-    beforeEach(async function () {
-      await db.query(`DELETE FROM companies`);
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
-      `);
-
-      await db.query(`
-        INSERT INTO jobs (title, salary, equity, company_handle)
-        VALUES ('CEO', 100.01, 0.3, 'TEST1')
-        RETURNING id;
-      `);
-    });
-
     test("should get a company",
       async function () {
         const response = await request(app)
@@ -298,14 +282,6 @@ describe("Test Company Routes", () => {
   });
 
   describe("PATCH /companies/:handle - updates an existing company", () => {
-    beforeEach(async function () {
-      await db.query(`DELETE FROM companies`);
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
-      `);
-    });
-
     test("should update a company",
       async function () {
         const response = await request(app)
@@ -348,7 +324,8 @@ describe("Test Company Routes", () => {
         const response = await request(app)
         .patch("/companies/LJKD")
         .send({
-          employees: -3984
+          employees: -3984,
+          logo_url: "hello..."
         });
         const company = response.body;
 
@@ -356,7 +333,8 @@ describe("Test Company Routes", () => {
         expect(company).toEqual({
           status: 400,
           message: [ 
-            'instance.employees must have a minimum value of 0'
+            "instance.employees must have a minimum value of 0",
+            "instance.logo_url does not conform to the \"uri\" format"
           ]
         });
       }
@@ -364,14 +342,6 @@ describe("Test Company Routes", () => {
   });
 
   describe("DELETE /companies/:handle - deletes an existing company", () => {
-    beforeEach(async function () {
-      await db.query(`DELETE FROM companies`);
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
-      `);
-    });
-
     test("should delete a company",
       async function () {
         const response = await request(app)

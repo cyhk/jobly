@@ -13,7 +13,7 @@ const router = new express.Router();
  * 
  * filters: { [search], [min_employees], [max_equity] }
  * 
- * Output: {companies: [{handle, name}, ...]}
+ * Output: { companies: [{handle, name}, ...]}
  */
 router.get('/', async function (req, res, next) {
   try {
@@ -29,9 +29,9 @@ router.get('/', async function (req, res, next) {
 });
 
 /**
- * GET /:handle - retreves a specfic company
+ * GET /:handle - retrieves a specfic company
  * 
- * Output: {company: {handle, name, employees, description, logo_url}}
+ * Output: { company: { handle, name, employees, description, logo_url }
  * 
  * Throws an error if company is not found
  */
@@ -49,8 +49,8 @@ router.get('/:handle', async function (req, res, next) {
 /**
  * POST / - creates a new company based on given information.
  * 
- * Input: {handle, name, [employees], [description], [logo_url]}
- * Output: {company: {handle, name, employees, description, logo_url}}
+ * Input: { handle, name, [employees], [description], [logo_url] }
+ * Output: { company: { handle, name, employees, description, logo_url }}
  * 
  * Throws an error if information given is incorrect
  */
@@ -77,8 +77,8 @@ router.post('/', async function (req, res, next) {
 /**
  * PATCH /:handle - updates existing company
  * 
- * Input: {[name], [employees], [description], [logo_url]}
- * Output: {company: {handle, name, employees, description, logo_url}}
+ * Input: { [name], [employees], [description], [logo_url] }
+ * Output: { company: { handle, name, employees, description, logo_url }}
  * 
  * Throw an error if company is not found, or if information
  * given is incorrect
@@ -91,6 +91,7 @@ router.patch('/:handle', async function(req, res, next) {
       let listOfErrors = result.errors.map(error => error.stack);
       throw new ExpressError(listOfErrors, 400);
     }
+    
     const expectedKeys = [ "name", "employees", "description", "logo"];
     const handle = req.params.handle;
     const colsToUpdate = req.body;
@@ -99,7 +100,6 @@ router.patch('/:handle', async function(req, res, next) {
 
     return res.json({ company });
   } catch (err) {
-    console.log(err);
     next(err);
   }
 });
@@ -107,7 +107,7 @@ router.patch('/:handle', async function(req, res, next) {
 /**
  * DELETE /:handle - removes an existing company
  * 
- * Output: {message: "Company deleted"}
+ * Output: { message: "Company deleted" }
  * 
  * Throws an error if company is not found
  */

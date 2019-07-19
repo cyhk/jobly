@@ -12,9 +12,9 @@ const { sqlForPartialUpdate,
 } = require('../helpers/queryHelpers');
 
 class Company {
-  
   /**
    * Create a record of the company in the database.
+   * 
    * Input: { handle, name, [employees], [description], [logo_url] }
    * Output: {handle, name, employees, description, logo_url}
    */
@@ -29,6 +29,7 @@ class Company {
 
   /**
    * Get all companies. If no filters match, returns all companies
+   * 
    * Input: { [search], [min_employees], [max_employees] }
    * Output: [{handle, name}, ...]
    */

@@ -9,7 +9,7 @@ const router = new express.Router();
 
 /**
  * GET / - get all jobs matching filters, if any.
- * Returns all companies if there are no jobs.
+ * Returns all jobs if there are no filters.
  * 
  * filters: { [search], [min_salary], [min_equity] }
  * 
@@ -20,7 +20,6 @@ router.get('/', async function(req, res, next){
     const expectedKeys = ["search", "min_salary", "min_equity"];
     const filters = req.query;
     const cleanedFilters = cleanItems(filters, expectedKeys);
-    console.log(cleanedFilters);
     const jobs = await Job.all(cleanedFilters);
 
     return res.json({ jobs });
@@ -30,11 +29,11 @@ router.get('/', async function(req, res, next){
 });
 
 /**
- * GET /:id - retreves a specfic job
+ * GET /:id - retrieves a specfic job
  * 
- * Output: {job: { id, title, salary, equity, company_handle, date_posted }}
+ * Output: { job: { id, title, salary, equity, company_handle, date_posted }}
  * 
- * Throws an error if company is not found
+ * Throws an error if job is not found
  */
 router.get('/:id', async function(req, res, next){
   try{
@@ -48,10 +47,10 @@ router.get('/:id', async function(req, res, next){
 });
 
 /**
- * POST / - creates a new company based on given information.
+ * POST / - creates a new job based on given information.
  * 
  * Input: { title, salary, equity, company_handle }
- * Output: {job: { id, title, salary, equity, company_handle, date_posted }}
+ * Output: { job: { id, title, salary, equity, company_handle, date_posted }}
  * 
  * Throws an error if information given is incorrect
  */
@@ -78,10 +77,10 @@ router.post('/', async function(req, res, next){
 /**
  * PATCH /:id - updates existing job
  * 
- * Input: {[title], [salary], [equity]}
- * Output: {job: { id, title, salary, equity, company_handle, date_posted }}
+ * Input: { [title], [salary], [equity] }
+ * Output: { job: { id, title, salary, equity, company_handle, date_posted }}
  * 
- * Throw an error if company is not found, or if information
+ * Throw an error if job is not found, or if information
  * given is incorrect
  */
 router.patch('/:id', async function(req, res, next){
@@ -92,6 +91,7 @@ router.patch('/:id', async function(req, res, next){
       let listOfErrors = result.errors.map(error => error.stack);
       throw new ExpressError(listOfErrors, 400);
     }
+    
     const expectedKeys = ["title", "salary", "equity"];
     const id = req.params.id;
     const colsToUpdate = req.body;
@@ -105,11 +105,11 @@ router.patch('/:id', async function(req, res, next){
 });
 
 /**
- * DELETE /:id - removes an existing company
+ * DELETE /:id - removes an existing job
  * 
- * Output: {message: "Job deleted"}
+ * Output: { message: "Job deleted" }
  * 
- * Throws an error if company is not found
+ * Throws an error if job is not found
  */
 router.delete('/:id', async function(req, res, next){
   try{

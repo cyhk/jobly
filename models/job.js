@@ -12,9 +12,9 @@ const { sqlForPartialUpdate,
       } = require('../helpers/queryHelpers');
 
 class Job {
-  
   /**
    * Create a record of the job in the database.
+   * 
    * Input: { title, salary, equity, company_handle }
    * Output: { id, title, salary, equity, company_handle, date_posted }
    */
@@ -29,8 +29,9 @@ class Job {
 
   /**
    * Get all jobs. If no filters match, return all jobs
+   * 
    * Input: { [search], [min_salary], [min_equity] }
-   * Returns [{ title, company_handle }, ...]
+   * Output: [{ title, company_handle }, ...]
    */
   static async all(filters) {
     const { min_salary, min_equity } = filters;
@@ -56,7 +57,7 @@ class Job {
    * Input: id
    * Output: { id, title, salary, equity, company_handle, date_posted }
    * 
-   * Throws an error if company is not found
+   * Throws an error if job is not found
    */
   static async get(id) {
     const result = await db.query(
@@ -84,8 +85,6 @@ class Job {
   static async update(id, valsToUpdate) {
     const { query, values } = sqlForPartialUpdate("jobs",
                                     valsToUpdate, "id", id);
-    console.log(query);
-    console.log(values);
     const result = await db.query(query, values);
 
     if (result.rowCount === 0) {
@@ -99,9 +98,9 @@ class Job {
    * Deletes a specific job.
    * 
    * Input: id
-   * Returns {message: "Job deleted"} upon success
+   * Returns { message: "Job deleted" } upon success
    * 
-   * Throws an error if company is not found
+   * Throws an error if job is not found
    */
   static async delete(id) {
     const result = await db.query(

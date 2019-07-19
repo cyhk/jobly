@@ -2,16 +2,23 @@ const db = require("../../db");
 const Company = require("../../models/company");
 
 describe("Test Company Class", () => {
+  beforeEach(async function () {
+    await db.query(`DELETE FROM companies`);
+    await db.query(`DELETE FROM jobs`);
+
+    await db.query(`
+      INSERT INTO companies (handle, name, employees, description, logo_url)
+      VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
+    `);
+
+    await db.query(`
+      INSERT INTO jobs (title, salary, equity, company_handle)
+      VALUES ('CEO', 100.01, 0.3, 'TEST1')
+      RETURNING id;
+    `);
+  });
 
   describe("create()", () => {
-    beforeEach(async function () {
-      await db.query(`DELETE FROM companies`);
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
-      `);
-    });
-
     test("should add company to database",
       async function () {
         const newCompany = {
@@ -34,14 +41,6 @@ describe("Test Company Class", () => {
   });
 
   describe("all()", () => {
-    beforeEach(async function () {
-      await db.query(`DELETE FROM companies`);
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
-      `);
-    });
-
     test("get all companies",
       async function () {
         const companies = await Company.all({});
@@ -130,20 +129,6 @@ describe("Test Company Class", () => {
   });
 
   describe("get()", () => {
-    beforeEach(async function () {
-      await db.query(`DELETE FROM companies`);
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
-      `);
-
-      await db.query(`
-        INSERT INTO jobs (title, salary, equity, company_handle)
-        VALUES ('CEO', 100.01, 0.3, 'TEST1')
-        RETURNING id;
-      `);
-    });
-
     test("should get a company",
       async function () {
         const company = await Company.get('TEST1');
@@ -173,14 +158,6 @@ describe("Test Company Class", () => {
   });
 
   describe("update()", () => {
-    beforeEach(async function () {
-      await db.query(`DELETE FROM companies`);
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
-      `);
-    });
-
     test("should update a company",
       async function () {
         const valsToUpdate = {
@@ -214,14 +191,6 @@ describe("Test Company Class", () => {
   });
 
   describe("delete()", () => {
-    beforeEach(async function () {
-      await db.query(`DELETE FROM companies`);
-      await db.query(`
-        INSERT INTO companies (handle, name, employees, description, logo_url)
-        VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
-      `);
-    });
-
     test("should delete a company",
       async function () {
         const company = await Company.delete('TEST1');

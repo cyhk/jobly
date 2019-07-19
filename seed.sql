@@ -1,5 +1,6 @@
 DROP TABLE jobs;
 DROP TABLE companies;
+DROP TABLE users;
 
 CREATE TABLE companies (
   handle text NOT NULL PRIMARY KEY,
@@ -18,6 +19,12 @@ CREATE TABLE jobs (
   date_posted timestamp with time zone NOT NULL DEFAULT current_timestamp
 );
 
--- CREATE TABLE users (
-
--- )
+CREATE TABLE users (
+  username text NOT NULL PRIMARY KEY,
+  password text NOT NULL,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  email text NOT NULL UNIQUE,
+  photo_url text NOT NULL DEFAULT '',
+  is_admin boolean NOT NULL DEFAULT FALSE
+);
