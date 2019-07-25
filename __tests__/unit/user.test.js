@@ -33,6 +33,29 @@ describe("Test User Class", () => {
         });
       }
     );
+
+    test("should add admin user to database",
+      async function () {
+        const newUser = {
+          username: "testUser3",
+          password: "unhashedpassword3",
+          first_name: "Three",
+          last_name: "TestThree",
+          email: "testThree@test.com",
+          photo_url: "https://bit.ly/fakeURLThree",
+          is_admin: true
+        }
+        const user = await User.create(newUser);
+
+        expect(user).toEqual({
+          username: "testUser3",
+          first_name: "Three",
+          last_name: "TestThree",
+          email: "testThree@test.com",
+          photo_url: "https://bit.ly/fakeURLThree"
+        });
+      }
+    );
   });
 
   describe("all()", () => {
@@ -118,6 +141,35 @@ describe("Test User Class", () => {
         await expect(User.delete("notTestUser1"))
         .rejects
         .toThrow("User not found");
+      }
+    );
+  });
+
+  describe("authenticate()", () => {
+    const newUser = {
+      username: "testUser2",
+      password: "unhashedpassword2",
+      first_name: "Two",
+      last_name: "TestTwo",
+      email: "testTwo@test.com",
+      photo_url: "https://bit.ly/fakeURL"
+    }
+
+    test("return true if password is correct",
+      async function() {
+        await User.create(newUser);
+        
+        const result = await User.authenticate('testUser2', 'unhashedpassword2');
+        expect(result).toBe(true);
+      }
+    );
+
+    test("return false if password is incorrect",
+      async function() {
+        await User.create(newUser);
+
+        const result = await User.authenticate('testUser2', 'badpassword2');
+        expect(result).toBe(false);
       }
     );
   });

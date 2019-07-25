@@ -1,6 +1,7 @@
 const db = require("../../db");
 const app = require("../../app");
 const request = require("supertest");
+const { TOKEN, ADMIN_TOKEN } = require("../../config");
 
 describe("Test Job Routes", () => {
   let id = null;
@@ -166,7 +167,7 @@ describe("Test Job Routes", () => {
   });
 
   describe("POST /jobs/ - creates a new job", () => {
-    test("should create new job",
+    test("should create new job if user is admin",
       async function () {
         const response = await request(app)
           .post("/jobs")
@@ -174,7 +175,8 @@ describe("Test Job Routes", () => {
             title: "CFO",
             salary: 10000,
             equity: 0.4,
-            company_handle: "TEST1"
+            company_handle: "TEST1",
+            _token: ADMIN_TOKEN
           });
         const job = response.body;
 
@@ -190,13 +192,55 @@ describe("Test Job Routes", () => {
       }
     );
 
+    test("should not create new job if user is not admin",
+      async function () {
+        const response = await request(app)
+          .post("/jobs")
+          .send({
+            title: "CFO",
+            salary: 10000,
+            equity: 0.4,
+            company_handle: "TEST1",
+            _token: TOKEN
+          });
+        const job = response.body;
+
+        expect(response.statusCode).toBe(401);
+        expect(job).toEqual({
+          message: "Unauthorized",
+          status: 401
+        });
+      }
+    );
+
+    test("should not create new job if user is not logged in",
+      async function () {
+        const response = await request(app)
+          .post("/jobs")
+          .send({
+            title: "CFO",
+            salary: 10000,
+            equity: 0.4,
+            company_handle: "TEST1"
+          });
+        const job = response.body;
+
+        expect(response.statusCode).toBe(401);
+        expect(job).toEqual({
+          message: "Unauthorized",
+          status: 401
+        });
+      }
+    );
+
     test("should throw an error with bad inputs", 
       async function () {
         const response = await request(app)
           .post("/jobs")
           .send({
             salary: 10000,
-            equity: -0.4
+            equity: -0.4,
+            _token: ADMIN_TOKEN
           });
         const jobs = response.body;
 
@@ -248,12 +292,13 @@ describe("Test Job Routes", () => {
   });
 
   describe("PATCH /jobs/:id - updates an existing job", () => {
-    test("should update a job",
+    test("should update a job if user is admin",
       async function () {
         const response = await request(app)
           .patch(`/jobs/${id}`)
           .send({
-            salary: 1000.01
+            salary: 1000.01,
+            _token: ADMIN_TOKEN
           });
         const job = response.body;
         
@@ -267,6 +312,24 @@ describe("Test Job Routes", () => {
           date_posted: expect.any(String)
         }});
       }
+    ); 
+
+    test("should not update a job if user is not admin",
+      async function () {
+        const response = await request(app)
+          .patch(`/jobs/${id}`)
+          .send({
+            salary: 1000.01,
+            _token: TOKEN
+          });
+        const job = response.body;
+        
+        expect(response.statusCode).toBe(401);
+        expect(job).toEqual({
+          message: "Unauthorized",
+          status: 401
+        });
+      }
     );
 
     test("should throw an error if job was not found", 
@@ -274,7 +337,8 @@ describe("Test Job Routes", () => {
         const response = await request(app)
         .patch("/jobs/999999")
         .send({
-          salary: 1000.01
+          salary: 1000.01,
+          _token: ADMIN_TOKEN
         });
         const job = response.body;
 
@@ -291,7 +355,8 @@ describe("Test Job Routes", () => {
         const response = await request(app)
         .patch(`/jobs/${id}`)
         .send({
-          salary: -3984
+          salary: -3984,
+          _token: ADMIN_TOKEN
         });
         const job = response.body;
 
@@ -307,10 +372,13 @@ describe("Test Job Routes", () => {
   });
 
   describe("DELETE /jobs/:id - deletes an existing job", () => {
-    test("should delete a job",
+    test("should delete a job if user is admin",
       async function () {
         const response = await request(app)
-          .delete(`/jobs/${id}`);
+          .delete(`/jobs/${id}`)
+          .send({
+            _token: ADMIN_TOKEN
+          });
         const job = response.body;
         expect(response.statusCode).toBe(200);
         expect(job).toEqual({
@@ -319,10 +387,29 @@ describe("Test Job Routes", () => {
       }
     );
 
+    test("should not delete a job if user is not admin",
+      async function () {
+        const response = await request(app)
+          .delete(`/jobs/${id}`)
+          .send({
+            _token: TOKEN
+          });
+        const job = response.body;
+        expect(response.statusCode).toBe(401);
+        expect(job).toEqual({
+          message: "Unauthorized",
+          status: 401
+        });
+      }
+    );
+
     test("should throw an error if job was not found", 
       async function() {
         const response = await request(app)
-          .delete("/jobs/999999");
+          .delete("/jobs/999999")
+          .send({
+            _token: ADMIN_TOKEN
+          });
         const job = response.body;
 
         expect(response.statusCode).toBe(404);

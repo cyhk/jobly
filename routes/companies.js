@@ -5,6 +5,8 @@ const jsonschema = require("jsonschema");
 const companySchema = require("../schemas/companySchema.json");
 const companyPatchSchema = require("../schemas/companyPatchSchema.json");
 const cleanItems = require("../helpers/cleanItems");
+const { ensureLoggedIn,
+        isAdmin } = require("../helpers/authMiddleware");
 const router = new express.Router();
 
 /**
@@ -17,12 +19,16 @@ const router = new express.Router();
  */
 router.get('/', async function (req, res, next) {
   try {
-    const neededKeys = ["search", "min_employees", "max_employees"];
-    const filters = req.query;
-    const cleanedFilters = cleanItems(filters, neededKeys);
-    const companies = await Company.all(cleanedFilters);
-
-    return res.json({ companies });
+    if (req.user) {
+      const neededKeys = ["search", "min_employees", "max_employees"];
+      const filters = req.query;
+      const cleanedFilters = cleanItems(filters, neededKeys);
+      const companies = await Company.all(cleanedFilters);
+  
+      return res.json({ companies });
+    } else {
+      throw new ExpressError("Unauthorized", 401);
+    }
   } catch (err) {
     next(err);
   }
@@ -37,10 +43,14 @@ router.get('/', async function (req, res, next) {
  */
 router.get('/:handle', async function (req, res, next) {
   try {
-    const handle = req.params.handle;
-    const company = await Company.get(handle);
-    
-    return res.json({ company });
+    if (req.user) {
+      const handle = req.params.handle;
+      const company = await Company.get(handle);
+      
+      return res.json({ company });
+    } else {
+      throw new ExpressError("Unauthorized", 401);
+    }
   } catch (err) {
     next(err);
   }
@@ -54,7 +64,7 @@ router.get('/:handle', async function (req, res, next) {
  * 
  * Throws an error if information given is incorrect
  */
-router.post('/', async function (req, res, next) {
+router.post('/', ensureLoggedIn, isAdmin, async function (req, res, next) {
   try {
     const result = jsonschema.validate(req.body, companySchema);
     
@@ -83,7 +93,7 @@ router.post('/', async function (req, res, next) {
  * Throw an error if company is not found, or if information
  * given is incorrect
  */
-router.patch('/:handle', async function(req, res, next) {
+router.patch('/:handle', ensureLoggedIn, isAdmin, async function(req, res, next) {
   try{
     const result = jsonschema.validate(req.body, companyPatchSchema);
 
@@ -111,7 +121,7 @@ router.patch('/:handle', async function(req, res, next) {
  * 
  * Throws an error if company is not found
  */
-router.delete('/:handle', async function(req, res, next) {
+router.delete('/:handle', ensureLoggedIn, isAdmin, async function(req, res, next) {
   try{
     const handle = req.params.handle;
     const message = await Company.delete(handle);

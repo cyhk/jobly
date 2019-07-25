@@ -5,6 +5,8 @@ const jsonschema = require("jsonschema");
 const jobSchema = require("../schemas/jobSchema.json");
 const jobPatchSchema = require("../schemas/jobPatchSchema.json");
 const cleanItems = require("../helpers/cleanItems");
+const { ensureLoggedIn,
+        isAdmin } = require("../helpers/authMiddleware");
 const router = new express.Router();
 
 /**
@@ -54,7 +56,7 @@ router.get('/:id', async function(req, res, next){
  * 
  * Throws an error if information given is incorrect
  */
-router.post('/', async function(req, res, next){
+router.post('/', ensureLoggedIn, isAdmin, async function(req, res, next){
   try{
     const result = jsonschema.validate(req.body, jobSchema);
     
@@ -83,7 +85,7 @@ router.post('/', async function(req, res, next){
  * Throw an error if job is not found, or if information
  * given is incorrect
  */
-router.patch('/:id', async function(req, res, next){
+router.patch('/:id', ensureLoggedIn, isAdmin, async function(req, res, next){
   try{
     const result = jsonschema.validate(req.body, jobPatchSchema);
     
@@ -111,7 +113,7 @@ router.patch('/:id', async function(req, res, next){
  * 
  * Throws an error if job is not found
  */
-router.delete('/:id', async function(req, res, next){
+router.delete('/:id', ensureLoggedIn, isAdmin, async function(req, res, next){
   try{
     const id = req.params.id;
     const message = await Job.delete(id);

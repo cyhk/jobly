@@ -37,7 +37,7 @@ describe("Query helper functions", function() {
       }
     );
 
-    test("should generate a proper given no values",
+    test("should generate a proper query given no values",
     function () {
       const filters = {};
       const selectCols = ["colOne", "numbers"];

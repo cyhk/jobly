@@ -4,22 +4,25 @@ const express = require("express");
 const ExpressError = require("./helpers/expressError");
 const morgan = require("morgan");
 const app = express();
+const { authenticateJWT } = require("./helpers/authMiddleware");
 
 app.use(express.json());
 
 // add logging system
 app.use(morgan("tiny"));
 
+app.use(authenticateJWT);
+
 
 const companyRoutes = require("./routes/companies");
 const jobRoutes = require("./routes/jobs");
 const userRoutes = require("./routes/users");
-// const authRoutes = require("./routes/auth");
+const authRoutes = require("./routes/auth");
 
 app.use("/companies", companyRoutes);
 app.use("/jobs", jobRoutes);
 app.use("/users", userRoutes);
-// app.use("/auth", authRoutes);
+app.use("/auth", authRoutes);
 
 /** 404 handler */
 app.use(function(req, res, next) {

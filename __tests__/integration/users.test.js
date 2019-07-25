@@ -1,6 +1,7 @@
 const db = require("../../db");
 const app = require("../../app");
 const request = require("supertest");
+const { TOKEN } = require("../../config");
 
 describe("Test User Routes", () => {
   beforeEach(async function () {
@@ -13,12 +14,15 @@ describe("Test User Routes", () => {
   });
   
   describe("GET /users/ - Gets all users", () => {
-    test("should get all users",
+    test("should get all users if user is authenticated",
       async function () {
         const response = await request(app)
-          .get("/users");
+          .get("/users")
+          .query({
+            _token: TOKEN
+          });
         const users = response.body;
-        // username, first_name, last_name, email, photo_url
+
         expect(response.statusCode).toBe(200);
         expect(users).toEqual({
           users: [
@@ -31,13 +35,30 @@ describe("Test User Routes", () => {
         });
       }
     );
+
+    test("should not get all users if user is not authenticated",
+      async function () {
+        const response = await request(app)
+          .get("/users");
+        const users = response.body;
+        
+        expect(response.statusCode).toBe(401);
+        expect(users).toEqual({
+          message: "Unauthorized",
+          status: 401
+        });
+      }
+    );
   });
 
   describe("GET /users/:username - gets a specific user", () => {
-    test("should get a user",
+    test("should get a user if the user is authenticated",
       async function () {
         const response = await request(app)
-          .get(`/users/testUser1`);
+          .get(`/users/testUser1`)
+          .query({
+            _token: TOKEN
+          });
         const user = response.body;
 
         expect(response.statusCode).toBe(200);
@@ -51,10 +72,27 @@ describe("Test User Routes", () => {
       }
     );
 
+    test("should not get a user if the user is not authenticated",
+    async function () {
+      const response = await request(app)
+        .get(`/users/testUser1`);
+      const user = response.body;
+
+      expect(response.statusCode).toBe(401);
+      expect(user).toEqual({
+        message: "Unauthorized",
+        status: 401
+      });
+    }
+  );
+
     test("should throw an error if user was not found", 
       async function () {
         const response = await request(app)
-          .get("/users/notTestUser1");
+          .get("/users/notTestUser1")
+          .query({
+            _token: TOKEN
+          });
         const user = response.body;
 
         expect(response.statusCode).toBe(404);
@@ -82,13 +120,9 @@ describe("Test User Routes", () => {
         const user = response.body;
 
         expect(response.statusCode).toBe(200);
-        expect(user).toEqual({user: {
-          username: "testUser2",
-          first_name: "Two",
-          last_name: "TestTwo",
-          email: "testTwo@test.com",
-          photo_url: "https://bit.ly/fakeURL"
-        }});
+        expect(user).toEqual({
+          token: expect.any(String)
+        });
       }
     );
 
@@ -118,12 +152,13 @@ describe("Test User Routes", () => {
   });
 
   describe("PATCH /users/:id - updates an existing user", () => {
-    test("should update a user",
+    test("should update a user if authorized",
       async function () {
         const response = await request(app)
           .patch(`/users/testUser1`)
           .send({
-            first_name: "OneTest"
+            first_name: "OneTest",
+            _token: TOKEN
           });
         const user = response.body;
         
@@ -138,19 +173,37 @@ describe("Test User Routes", () => {
       }
     );
 
-    test("should throw an error if user was not found", 
+    test("should not update a user if unauthorized",
+      async function () {
+        const response = await request(app)
+          .patch(`/users/testUser1`)
+          .send({
+            first_name: "OneTest"
+          });
+        const user = response.body;
+        
+        expect(response.statusCode).toBe(401);
+        expect(user).toEqual({
+          message: "Unauthorized",
+          status: 401
+        });
+      }
+    );
+
+    test("should throw an error if user is not logged in user", 
       async function () {
         const response = await request(app)
         .patch("/users/NotTestUser1")
         .send({
-          first_name: "OneTest"
+          first_name: "OneTest",
+          _token: TOKEN
         });
         const user = response.body;
 
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toBe(401);
         expect(user).toEqual({
-          status: 404,
-          message: "User not found"
+          status: 401,
+          message: "Unauthorized"
         });
       }
     );
@@ -161,7 +214,8 @@ describe("Test User Routes", () => {
           .patch("/users/testUser1")
           .send({
             email: "hi",
-            photo_url: "hello"
+            photo_url: "hello",
+            _token: TOKEN
           });
         const users = response.body;
 
@@ -177,11 +231,14 @@ describe("Test User Routes", () => {
     );
   });
 
-  describe("DELETE /users/:id - deletes an existing user", () => {
-    test("should delete a user",
+  describe("DELETE /users/:id - deletes the logged in user", () => {
+    test("should delete the user",
       async function () {
         const response = await request(app)
-          .delete(`/users/testUser1`);
+          .delete(`/users/testUser1`)
+          .send({
+            _token: TOKEN
+          });
         const user = response.body;
         expect(response.statusCode).toBe(200);
         expect(user).toEqual({
@@ -190,16 +247,32 @@ describe("Test User Routes", () => {
       }
     );
 
-    test("should throw an error if user was not found", 
+    test("should not delete the user if unauthorized",
+      async function () {
+        const response = await request(app)
+          .delete(`/users/testUser1`);
+        const user = response.body;
+        expect(response.statusCode).toBe(401);
+        expect(user).toEqual({
+          message: "Unauthorized",
+          status: 401
+        });
+      }
+    );
+
+    test("should throw an error if user is not logged-in user", 
       async function() {
         const response = await request(app)
-          .delete("/users/NotTestUser1");
+          .delete("/users/NotTestUser1")
+          .send({
+            _token: TOKEN
+          });
         const user = response.body;
 
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toBe(401);
         expect(user).toEqual({
-          status: 404,
-          message: "User not found"
+          status: 401,
+          message: "Unauthorized"
         });
       }
     );

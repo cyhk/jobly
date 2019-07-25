@@ -62,7 +62,7 @@ function createValues(details, table, allColumns) {
 
   let query = `INSERT INTO ${table} (${columns}) VALUES (${idxArr})`
   query += ` RETURNING ${allCols}`
-
+  console.log(query);
   return { query, values };
 }
 

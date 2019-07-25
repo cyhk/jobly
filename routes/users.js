@@ -1,10 +1,13 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const ExpressError = require("../helpers/expressError");
 const User = require("../models/user");
 const jsonschema = require("jsonschema");
 const userSchema = require("../schemas/userSchema.json");
 const userPatchSchema = require("../schemas/userPatchSchema.json");
 const cleanItems = require("../helpers/cleanItems");
+const { ensureLoggedIn } = require("../helpers/authMiddleware");
+const { SECRET_KEY } = require("../config");
 const router = new express.Router();
 
 /**
@@ -14,9 +17,13 @@ const router = new express.Router();
  */
 router.get('/', async function(req, res, next){
   try{
-    const users = await User.all();
-
-    return res.json({ users });
+    if (req.user) {
+      const users = await User.all();
+  
+      return res.json({ users });
+    } else {
+      throw new ExpressError("Unauthorized", 401);
+    }
   } catch (err) {
     next(err);
   }
@@ -31,10 +38,14 @@ router.get('/', async function(req, res, next){
  */
 router.get('/:username', async function(req, res, next){
   try{
-    const username = req.params.username;
-    const user = await User.get(username);
-
-    return res.json({ user });
+    if (req.user) {
+      const username = req.params.username;
+      const user = await User.get(username);
+  
+      return res.json({ user });
+    } else {
+      throw new ExpressError("Unauthorized", 401);
+    }
   } catch (err) {
     next(err);
   }
@@ -63,7 +74,10 @@ router.post('/', async function(req, res, next){
     const details = cleanItems(detailsToAdd, expectedKeys);
     const user = await User.create(details);
 
-    return res.json({ user });
+    let payload = { username: details.username, is_admin: user.is_admin };
+    let token = jwt.sign(payload, SECRET_KEY);
+
+    return res.json({ token });
   } catch (err) {
     next(err);
   }
@@ -77,23 +91,27 @@ router.post('/', async function(req, res, next){
  * 
  * Throw an error if user is not found
  */
-router.patch('/:username', async function(req, res, next){
+router.patch('/:username', ensureLoggedIn, async function(req, res, next){
   try{
-    const result = jsonschema.validate(req.body, userPatchSchema);
-    
-    if (!result.valid) {
-      let listOfErrors = result.errors.map(error => error.stack);
-      throw new ExpressError(listOfErrors, 400);
-    }
-
-    const expectedKeys = ["password", "first_name",
-                          "last_name", "email", "photo_url"];
     const username = req.params.username;
-    const colsToUpdate = req.body;
-    const cleanedColsToUpdate = cleanItems(colsToUpdate, expectedKeys);
-    const user = await User.update(username, cleanedColsToUpdate);
-
-    return res.json({ user });
+    if (req.user.username === username) {
+      const result = jsonschema.validate(req.body, userPatchSchema);
+    
+      if (!result.valid) {
+        let listOfErrors = result.errors.map(error => error.stack);
+        throw new ExpressError(listOfErrors, 400);
+      }
+  
+      const expectedKeys = ["password", "first_name",
+                            "last_name", "email", "photo_url"];
+      const colsToUpdate = req.body;
+      const cleanedColsToUpdate = cleanItems(colsToUpdate, expectedKeys);
+      const user = await User.update(username, cleanedColsToUpdate);
+  
+      return res.json({ user });
+    } else {
+      throw new ExpressError("Unauthorized", 401);
+    }
   } catch (err) {
     next(err);
   }
@@ -106,12 +124,17 @@ router.patch('/:username', async function(req, res, next){
  * 
  * Throws an error if user is not found
  */
-router.delete('/:username', async function(req, res, next){
+router.delete('/:username', ensureLoggedIn, async function(req, res, next){
   try{
     const username = req.params.username;
-    const message = await User.delete(username);
+    console.log(req.user);
+    if (req.user.username === username) {
+      const message = await User.delete(username);
 
-    return res.json({ message });
+      return res.json({ message });
+    } else {
+      throw new ExpressError("Unauthorized", 401);
+    }
   } catch (err) {
     next(err);
   }

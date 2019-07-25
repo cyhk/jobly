@@ -1,9 +1,6 @@
 /** 
  * Job class for jobly
  */
-
-require('dotenv').config();
-
 const db = require("../db");
 const ExpressError = require("../helpers/expressError");
 const { sqlForPartialUpdate, 

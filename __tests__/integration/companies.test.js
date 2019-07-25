@@ -1,6 +1,7 @@
 const db = require("../../db");
 const app = require("../../app");
 const request = require("supertest");
+const { TOKEN, ADMIN_TOKEN } = require("../../config");
 
 describe("Test Company Routes", () => {
   beforeEach(async function () {
@@ -31,7 +32,10 @@ describe("Test Company Routes", () => {
     test("should get all companies when no filters are given",
       async function () {
         const response = await request(app)
-          .get("/companies");
+          .get("/companies")
+          .query({
+            _token: TOKEN
+          });
         const companies = response.body;
 
         expect(response.statusCode).toBe(200);
@@ -53,6 +57,20 @@ describe("Test Company Routes", () => {
       }
     );
 
+    test("should not get any companies if unauthorized",
+      async function () {
+        const response = await request(app)
+          .get("/companies");
+        const companies = response.body;
+
+        expect(response.statusCode).toBe(401);
+        expect(companies).toEqual({
+          status: 401,
+          message: "Unauthorized"
+        });
+      }
+    );
+
     test("should get matching companies when all filters are given",
       async function () {
         const response = await request(app)
@@ -60,7 +78,8 @@ describe("Test Company Routes", () => {
           .query({ 
             search: 'Test',
             min_employees: 1,
-            max_employees: 100
+            max_employees: 100,
+            _token: TOKEN
          });
         const companies = response.body;
 
@@ -83,7 +102,9 @@ describe("Test Company Routes", () => {
       async function () {
         const response = await request(app)
           .get("/companies")
-          .query({ search: 'Test1'
+          .query({ 
+            search: 'Test1',
+            _token: TOKEN
          });
         const companies = response.body;
 
@@ -103,7 +124,10 @@ describe("Test Company Routes", () => {
       async function () {
         const response = await request(app)
           .get("/companies")
-          .query({ search: 'asdlkfasd' });
+          .query({ 
+            search: 'asdlkfasd',
+            _token: TOKEN
+          });
         const companies = response.body;
 
         expect(response.statusCode).toBe(200);
@@ -115,7 +139,10 @@ describe("Test Company Routes", () => {
       async function () {
         const response = await request(app)
           .get("/companies")
-          .query({ min_employees: 100 });
+          .query({ 
+            min_employees: 100,
+            _token: TOKEN
+          });
         const companies = response.body;
 
         expect(response.statusCode).toBe(200);
@@ -133,7 +160,10 @@ describe("Test Company Routes", () => {
       async function () {
         const response = await request(app)
           .get("/companies")
-          .query({ min_employees: 10000 });
+          .query({ 
+            min_employees: 10000,
+            _token: TOKEN
+          });
         const companies = response.body;
 
         expect(response.statusCode).toBe(200);
@@ -147,7 +177,10 @@ describe("Test Company Routes", () => {
       async function () {
         const response = await request(app)
           .get("/companies")
-          .query({ max_employees: 50 });
+          .query({
+            max_employees: 50,
+            _token: TOKEN
+          });
         const companies = response.body;
 
         expect(response.statusCode).toBe(200);
@@ -166,7 +199,10 @@ describe("Test Company Routes", () => {
       async function () {
         const response = await request(app)
           .get("/companies")
-          .query({ max_employees: 1 });
+          .query({
+            max_employees: 1,
+            _token: TOKEN
+          });
         const companies = response.body;
 
         expect(response.statusCode).toBe(200);
@@ -182,7 +218,8 @@ describe("Test Company Routes", () => {
           .get("/companies")
           .query({ 
             max_employees: 1,
-            min_employees: 10
+            min_employees: 10,
+            _token: TOKEN
           });
         const companies = response.body;
 
@@ -196,7 +233,7 @@ describe("Test Company Routes", () => {
   });
 
   describe("POST /companies/ - creates new company", () => {
-    test("should create new company",
+    test("should create new company if user is admin",
       async function () {
         const response = await request(app)
           .post("/companies")
@@ -205,6 +242,7 @@ describe("Test Company Routes", () => {
             name: "Planet Earth",
             employees: 13,
             description: "Is this a real company?",
+            _token: ADMIN_TOKEN
           });
         const company = response.body;
 
@@ -219,13 +257,35 @@ describe("Test Company Routes", () => {
       }
     );
 
+    test("should not create new company if user is not admin",
+      async function () {
+        const response = await request(app)
+          .post("/companies")
+          .send({
+            handle: "EARTH",
+            name: "Planet Earth",
+            employees: 13,
+            description: "Is this a real company?",
+            _token: TOKEN
+          });
+        const company = response.body;
+
+        expect(response.statusCode).toBe(401);
+        expect(company).toEqual({
+          message: "Unauthorized",
+          status: 401
+        });
+      }
+    );
+
     test("should throw an error with bad inputs", 
       async function () {
         const response = await request(app)
           .post("/companies")
           .send({
             employees: -1523,
-            logo_url: "hi..."
+            logo_url: "hi...",
+            _token: ADMIN_TOKEN
           });
         const companies = response.body;
 
@@ -244,10 +304,13 @@ describe("Test Company Routes", () => {
   });
 
   describe("GET /companies/:handle - gets a specific company", () => {
-    test("should get a company",
+    test("should get a company if authorized",
       async function () {
         const response = await request(app)
-          .get("/companies/TEST1");
+          .get("/companies/TEST1")
+          .query({
+            _token: TOKEN
+          });
         const company = response.body;
 
         expect(response.statusCode).toBe(200);
@@ -266,10 +329,27 @@ describe("Test Company Routes", () => {
       }
     );
 
+    test("should not get a company if unauthorized",
+      async function () {
+        const response = await request(app)
+          .get("/companies/TEST1");
+        const company = response.body;
+
+        expect(response.statusCode).toBe(401);
+        expect(company).toEqual({
+          message: "Unauthorized",
+          status: 401
+        });
+      }
+    );
+
     test("should throw an error if company was not found", 
       async function () {
         const response = await request(app)
-          .get("/companies/LJKD");
+          .get("/companies/LJKD")
+          .query({
+            _token: TOKEN
+          });
         const company = response.body;
 
         expect(response.statusCode).toBe(404);
@@ -282,12 +362,13 @@ describe("Test Company Routes", () => {
   });
 
   describe("PATCH /companies/:handle - updates an existing company", () => {
-    test("should update a company",
+    test("should update a company if user is admin",
       async function () {
         const response = await request(app)
           .patch("/companies/TEST1")
           .send({
-            employees: 1000
+            employees: 1000,
+            _token: ADMIN_TOKEN
           });
         const company = response.body;
 
@@ -302,12 +383,31 @@ describe("Test Company Routes", () => {
       }
     );
 
+    test("should not update a company if user is not admin",
+      async function () {
+        const response = await request(app)
+          .patch("/companies/TEST1")
+          .send({
+            employees: 1000,
+            token: TOKEN
+          });
+        const company = response.body;
+
+        expect(response.statusCode).toBe(401);
+        expect(company).toEqual({
+          message: "Unauthorized",
+          status: 401
+        });
+      }
+    );
+
     test("should throw an error if company was not found", 
       async function () {
         const response = await request(app)
         .patch("/companies/LJKD")
         .send({
-          employees: 1000
+          employees: 1000,
+          _token: ADMIN_TOKEN
         });
         const company = response.body;
 
@@ -325,7 +425,8 @@ describe("Test Company Routes", () => {
         .patch("/companies/LJKD")
         .send({
           employees: -3984,
-          logo_url: "hello..."
+          logo_url: "hello...",
+          _token: ADMIN_TOKEN
         });
         const company = response.body;
 
@@ -342,10 +443,13 @@ describe("Test Company Routes", () => {
   });
 
   describe("DELETE /companies/:handle - deletes an existing company", () => {
-    test("should delete a company",
+    test("should delete a company if admin",
       async function () {
         const response = await request(app)
-          .delete("/companies/TEST1");
+          .delete("/companies/TEST1")
+          .send({
+            _token: ADMIN_TOKEN
+          });
         const company = response.body;
         expect(response.statusCode).toBe(200);
         expect(company).toEqual({
@@ -354,10 +458,29 @@ describe("Test Company Routes", () => {
       }
     );
 
+    test("should not delete a company if user is not admin",
+      async function () {
+        const response = await request(app)
+          .delete("/companies/TEST1")
+          .send({
+            _token: TOKEN
+          });
+        const company = response.body;
+        expect(response.statusCode).toBe(401);
+        expect(company).toEqual({
+          message: "Unauthorized",
+          status: 401
+        });
+      }
+    );
+
     test("should throw an error if company was not found", 
       async function() {
         const response = await request(app)
-          .delete("/companies/LJKD");
+          .delete("/companies/LJKD")
+          .send({
+            _token: ADMIN_TOKEN
+          });
         const company = response.body;
 
         expect(response.statusCode).toBe(404);
