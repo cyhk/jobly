@@ -3,9 +3,9 @@
  */
 const db = require("../db");
 const ExpressError = require("../helpers/expressError");
-const { sqlForPartialUpdate, 
-  searchQuery, 
-  createValues 
+const { sqlForPartialUpdate,
+  searchQuery,
+  createValues
 } = require('../helpers/queryHelpers');
 
 class Company {
@@ -16,7 +16,7 @@ class Company {
    * Output: {handle, name, employees, description, logo_url}
    */
   static async create(details) {
-    const expectedCols = ["handle", "name", 
+    const expectedCols = ["handle", "name",
       "employees", "description", "logo_url"];
     const { query, values } = createValues(details, "companies", expectedCols);
     const result = await db.query(query, values);
@@ -34,8 +34,8 @@ class Company {
     const { min_employees, max_employees } = filters;
     const filterWithNames = {
       search_name: filters.search,
-      min_employees: isNaN(min_employees)? min_employees: Number(min_employees),
-      max_employees: isNaN(max_employees)? max_employees: Number(max_employees)
+      min_employees: isNaN(min_employees) ? min_employees : Number(min_employees),
+      max_employees: isNaN(max_employees) ? max_employees : Number(max_employees)
     }
 
     if (min_employees > max_employees) {
@@ -45,9 +45,11 @@ class Company {
     }
 
     const selectCols = ["handle", "name"];
-    const { query, values } = searchQuery(filterWithNames,
-                                          selectCols,
-                                          "companies");
+    const { query, values } = searchQuery(
+      filterWithNames,
+      selectCols,
+      "companies"
+    );
 
     const result = await db.query(query, values);
 
@@ -67,7 +69,7 @@ class Company {
       `SELECT handle, name, employees, description, logo_url
         FROM companies
         WHERE handle = $1`,
-        [handle]
+      [handle]
     );
 
     if (companyResult.rowCount === 0) {
@@ -99,7 +101,7 @@ class Company {
    */
   static async update(handle, valsToUpdate) {
     const { query, values } = sqlForPartialUpdate("companies",
-                                    valsToUpdate, "handle", handle);
+      valsToUpdate, "handle", handle);
     const result = await db.query(query, values);
 
     if (result.rowCount === 0) {

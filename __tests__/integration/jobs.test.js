@@ -27,7 +27,7 @@ describe("Test Job Routes", () => {
       VALUES ('CFO', 10000, 0.4, 'TEST1');
     `);
   });
-  
+
   describe("GET /jobs/ - Gets all jobs matching query parameters (if any)", () => {
     test("should get all jobs when no filters are given",
       async function () {
@@ -54,7 +54,7 @@ describe("Test Job Routes", () => {
       async function () {
         const response = await request(app)
           .get("/jobs")
-          .query({ 
+          .query({
             search: 'CEO',
             min_salary: 100,
             min_equity: 0.1
@@ -76,8 +76,9 @@ describe("Test Job Routes", () => {
       async function () {
         const response = await request(app)
           .get("/jobs")
-          .query({ search: 'CEO'
-         });
+          .query({
+            search: 'CEO'
+          });
         const jobs = response.body;
 
         expect(response.statusCode).toBe(200);
@@ -144,10 +145,12 @@ describe("Test Job Routes", () => {
         const jobs = response.body;
 
         expect(response.statusCode).toBe(200);
-        expect(jobs).toEqual({ jobs: [{
-          title: "CFO",
-          company_handle: "TEST1"
-        }]});
+        expect(jobs).toEqual({
+          jobs: [{
+            title: "CFO",
+            company_handle: "TEST1"
+          }]
+        });
       }
     );
 
@@ -181,14 +184,16 @@ describe("Test Job Routes", () => {
         const job = response.body;
 
         expect(response.statusCode).toBe(200);
-        expect(job).toEqual({job: {
-          id: expect.any(Number),
-          title: "CFO",
-          salary: 10000,
-          equity: 0.4,
-          company_handle: "TEST1",
-          date_posted: expect.any(String)
-        }});
+        expect(job).toEqual({
+          job: {
+            id: expect.any(Number),
+            title: "CFO",
+            salary: 10000,
+            equity: 0.4,
+            company_handle: "TEST1",
+            date_posted: expect.any(String)
+          }
+        });
       }
     );
 
@@ -233,7 +238,7 @@ describe("Test Job Routes", () => {
       }
     );
 
-    test("should throw an error with bad inputs", 
+    test("should throw an error with bad inputs",
       async function () {
         const response = await request(app)
           .post("/jobs")
@@ -248,10 +253,10 @@ describe("Test Job Routes", () => {
         expect(jobs).toEqual({
           status: 400,
           message: [
-                  "instance requires property \"title\"",
-                  "instance requires property \"company_handle\"",
-                  "instance.equity must have a minimum value of 0"
-                  ]
+            "instance requires property \"title\"",
+            "instance requires property \"company_handle\"",
+            "instance.equity must have a minimum value of 0"
+          ]
         });
       }
     );
@@ -265,18 +270,20 @@ describe("Test Job Routes", () => {
         const job = response.body;
 
         expect(response.statusCode).toBe(200);
-        expect(job).toEqual({job: {
-          id: expect.any(Number),
-          title: "CEO",
-          salary: 100.01,
-          equity: 0.3,
-          company_handle: "TEST1",
-          date_posted: expect.any(String)
-        }});
+        expect(job).toEqual({
+          job: {
+            id: expect.any(Number),
+            title: "CEO",
+            salary: 100.01,
+            equity: 0.3,
+            company_handle: "TEST1",
+            date_posted: expect.any(String)
+          }
+        });
       }
     );
 
-    test("should throw an error if job was not found", 
+    test("should throw an error if job was not found",
       async function () {
         const response = await request(app)
           .get("/jobs/999999");
@@ -301,18 +308,20 @@ describe("Test Job Routes", () => {
             _token: ADMIN_TOKEN
           });
         const job = response.body;
-        
+
         expect(response.statusCode).toBe(200);
-        expect(job).toEqual({ job: {
-          id: expect.any(Number),
-          title: "CEO",
-          salary: 1000.01,
-          equity: 0.3,
-          company_handle: "TEST1",
-          date_posted: expect.any(String)
-        }});
+        expect(job).toEqual({
+          job: {
+            id: expect.any(Number),
+            title: "CEO",
+            salary: 1000.01,
+            equity: 0.3,
+            company_handle: "TEST1",
+            date_posted: expect.any(String)
+          }
+        });
       }
-    ); 
+    );
 
     test("should not update a job if user is not admin",
       async function () {
@@ -323,7 +332,7 @@ describe("Test Job Routes", () => {
             _token: TOKEN
           });
         const job = response.body;
-        
+
         expect(response.statusCode).toBe(401);
         expect(job).toEqual({
           message: "Unauthorized",
@@ -332,14 +341,14 @@ describe("Test Job Routes", () => {
       }
     );
 
-    test("should throw an error if job was not found", 
+    test("should throw an error if job was not found",
       async function () {
         const response = await request(app)
-        .patch("/jobs/999999")
-        .send({
-          salary: 1000.01,
-          _token: ADMIN_TOKEN
-        });
+          .patch("/jobs/999999")
+          .send({
+            salary: 1000.01,
+            _token: ADMIN_TOKEN
+          });
         const job = response.body;
 
         expect(response.statusCode).toBe(404);
@@ -350,20 +359,20 @@ describe("Test Job Routes", () => {
       }
     );
 
-    test("should throw an error when given bad input", 
+    test("should throw an error when given bad input",
       async function () {
         const response = await request(app)
-        .patch(`/jobs/${id}`)
-        .send({
-          salary: -3984,
-          _token: ADMIN_TOKEN
-        });
+          .patch(`/jobs/${id}`)
+          .send({
+            salary: -3984,
+            _token: ADMIN_TOKEN
+          });
         const job = response.body;
 
         expect(response.statusCode).toBe(400);
         expect(job).toEqual({
           status: 400,
-          message: [ 
+          message: [
             'instance.salary must have a minimum value of 0'
           ]
         });
@@ -403,8 +412,8 @@ describe("Test Job Routes", () => {
       }
     );
 
-    test("should throw an error if job was not found", 
-      async function() {
+    test("should throw an error if job was not found",
+      async function () {
         const response = await request(app)
           .delete("/jobs/999999")
           .send({

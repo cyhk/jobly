@@ -1,36 +1,36 @@
 const { TOKEN } = require("../../config");
-const { 
-        authenticateJWT, 
-        ensureLoggedIn, 
-        isAdmin 
-      } = require("../../helpers/authMiddleware");
+const {
+  authenticateJWT,
+  ensureLoggedIn,
+  isAdmin
+} = require("../../helpers/authMiddleware");
 
 describe("Auth unit tests", () => {
   describe("authenticateJWT()", () => {
     test("should set req.user with payload if token can be verified",
-      async function() {
+      async function () {
         const next = jest.fn();
         const req = {
           body: {
-              _token: TOKEN
+            _token: TOKEN
           }
         };
 
         authenticateJWT(req, {}, next);
-        expect(req.user).toBeTruthy(); //need to change!
+        expect(req.user).toBeTruthy();
         expect(next).toBeCalled();
       }
     );
 
     test("should not throw an error if token cannot be verified",
-      async function() {
+      async function () {
         const next = jest.fn(err => err);
         const req = {
           body: {
-              _token: "1234"
+            _token: "1234"
           }
         };
-        
+
         const returns = authenticateJWT(req, {}, next);
 
         expect(next).toBeCalled();
@@ -40,8 +40,8 @@ describe("Auth unit tests", () => {
   });
 
   describe("ensureLoggedIn()", () => {
-    test("should throw an error if user is not logged in", 
-      async function() {
+    test("should throw an error if user is not logged in",
+      async function () {
         const next = jest.fn(err => err);
         const req = {};
 
@@ -52,8 +52,8 @@ describe("Auth unit tests", () => {
       }
     );
 
-    test("should not throw an error if user is logged in", 
-      async function() {
+    test("should not throw an error if user is logged in",
+      async function () {
         const next = jest.fn(err => err);
         const req = {
           user: "Hi!"
@@ -67,24 +67,24 @@ describe("Auth unit tests", () => {
   });
 
   describe("isAdmin()", () => {
-    test("should throw an error if user is not an admin", 
-    async function() {
-      const next = jest.fn(err => err);
-      const req = {
-        user: {
-          is_admin: false
-        }
-      };
+    test("should throw an error if user is not an admin",
+      async function () {
+        const next = jest.fn(err => err);
+        const req = {
+          user: {
+            is_admin: false
+          }
+        };
 
-      const error = isAdmin(req, {}, next);
+        const error = isAdmin(req, {}, next);
 
-      expect(error.message).toBe("Unauthorized");
-      expect(error.status).toBe(401);
-    }
-  );
+        expect(error.message).toBe("Unauthorized");
+        expect(error.status).toBe(401);
+      }
+    );
 
-    test("should not throw an error if user is not an admin", 
-      async function() {
+    test("should not throw an error if user is not an admin",
+      async function () {
         const next = jest.fn(err => err);
         const req = {
           user: {
@@ -92,9 +92,9 @@ describe("Auth unit tests", () => {
           }
         };
 
-      const error = isAdmin(req, {}, next);
+        const error = isAdmin(req, {}, next);
 
-      expect(error).toBe(undefined);
+        expect(error).toBe(undefined);
       }
     );
   });

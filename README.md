@@ -9,8 +9,17 @@ For the front end built with React, visit [react-jobly](https://github.com/cyhk/
 # Tech/framework used
 **Built with:**
 - Express
+- PostgreSQL
 
 # How to use
+Create database and tables:
+```
+createdb jobly
+createdb jobly-test
+
+psql jobly < seed.sql
+psql jobly-test < seed.sql
+```
 Install all dependencies:
 ```
 npm install
@@ -18,7 +27,7 @@ npm install
 
 To run tests:
 ```
-jest  
+jest -i
 ```
 
 # API

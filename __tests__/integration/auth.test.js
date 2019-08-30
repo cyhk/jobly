@@ -28,7 +28,6 @@ describe("Test Auth Routes", () => {
             password: "unhashedPassword2"
         });
         const token = response.body;
-        console.log(token);
 
         expect(response.statusCode).toBe(200);
         expect(token).toEqual({token : expect.any(String)});

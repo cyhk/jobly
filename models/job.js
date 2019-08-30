@@ -3,10 +3,10 @@
  */
 const db = require("../db");
 const ExpressError = require("../helpers/expressError");
-const { sqlForPartialUpdate, 
-        searchQuery, 
-        createValues 
-      } = require('../helpers/queryHelpers');
+const { sqlForPartialUpdate,
+  searchQuery,
+  createValues
+} = require('../helpers/queryHelpers');
 
 class Job {
   /**
@@ -16,7 +16,7 @@ class Job {
    * Output: { id, title, salary, equity, company_handle, date_posted }
    */
   static async create(details) {
-    const expectedCols = ["id", "title", "salary", 
+    const expectedCols = ["id", "title", "salary",
       "equity", "company_handle", "date_posted"];
     const { query, values } = createValues(details, "jobs", expectedCols);
     const result = await db.query(query, values);
@@ -34,17 +34,17 @@ class Job {
     const { min_salary, min_equity } = filters;
     const filterWithNames = {
       search_title: filters.search,
-      min_salary: isNaN(min_salary)? min_salary: Number(min_salary),
-      min_equity: isNaN(min_equity)? min_equity: Number(min_equity)
+      min_salary: isNaN(min_salary) ? min_salary : Number(min_salary),
+      min_equity: isNaN(min_equity) ? min_equity : Number(min_equity)
     }
 
     const selectCols = ["title", "company_handle"];
     const { query, values } = searchQuery(filterWithNames,
-                                          selectCols,
-                                          "jobs");
+      selectCols,
+      "jobs");
 
     const result = await db.query(query, values);
-    
+
     return result.rows;
   }
 
@@ -61,7 +61,7 @@ class Job {
       `SELECT id, title, salary, equity, company_handle, date_posted
         FROM jobs
         WHERE id = $1`,
-        [id]
+      [id]
     );
 
     if (result.rowCount === 0) {
@@ -81,7 +81,7 @@ class Job {
    */
   static async update(id, valsToUpdate) {
     const { query, values } = sqlForPartialUpdate("jobs",
-                                    valsToUpdate, "id", id);
+      valsToUpdate, "id", id);
     const result = await db.query(query, values);
 
     if (result.rowCount === 0) {

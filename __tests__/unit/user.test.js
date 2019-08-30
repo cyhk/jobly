@@ -87,11 +87,11 @@ describe("Test User Class", () => {
       }
     );
 
-    test("should throw an error if user was not found", 
-      async () =>  {        
+    test("should throw an error if user was not found",
+      async () => {
         await expect(User.get("notTestUser1"))
-        .rejects
-        .toThrow("User not found");
+          .rejects
+          .toThrow("User not found");
       }
     );
   });
@@ -114,15 +114,15 @@ describe("Test User Class", () => {
       }
     );
 
-    test("should throw an error if user was not found", 
+    test("should throw an error if user was not found",
       async () => {
         const valsToUpdate = {
           first_name: "OneTest"
         }
 
         await expect(User.update("NotTestUser1", valsToUpdate))
-        .rejects
-        .toThrow("User not found");
+          .rejects
+          .toThrow("User not found");
       }
     );
   });
@@ -136,11 +136,11 @@ describe("Test User Class", () => {
       }
     );
 
-    test("should throw an error if user was not found", 
+    test("should throw an error if user was not found",
       async () => {
         await expect(User.delete("notTestUser1"))
-        .rejects
-        .toThrow("User not found");
+          .rejects
+          .toThrow("User not found");
       }
     );
   });
@@ -156,16 +156,16 @@ describe("Test User Class", () => {
     }
 
     test("return true if password is correct",
-      async function() {
+      async function () {
         await User.create(newUser);
-        
+
         const result = await User.authenticate('testUser2', 'unhashedpassword2');
         expect(result).toBe(true);
       }
     );
 
     test("return false if password is incorrect",
-      async function() {
+      async function () {
         await User.create(newUser);
 
         const result = await User.authenticate('testUser2', 'badpassword2');

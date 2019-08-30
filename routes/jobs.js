@@ -6,7 +6,7 @@ const jobSchema = require("../schemas/jobSchema.json");
 const jobPatchSchema = require("../schemas/jobPatchSchema.json");
 const cleanItems = require("../helpers/cleanItems");
 const { ensureLoggedIn,
-        isAdmin } = require("../helpers/authMiddleware");
+  isAdmin } = require("../helpers/authMiddleware");
 const router = new express.Router();
 
 /**
@@ -17,8 +17,8 @@ const router = new express.Router();
  * 
  * Output: {jobs: [{ title, company_handle }, ...]}
  */
-router.get('/', async function(req, res, next){
-  try{
+router.get('/', async function (req, res, next) {
+  try {
     const expectedKeys = ["search", "min_salary", "min_equity"];
     const filters = req.query;
     const cleanedFilters = cleanItems(filters, expectedKeys);
@@ -37,8 +37,8 @@ router.get('/', async function(req, res, next){
  * 
  * Throws an error if job is not found
  */
-router.get('/:id', async function(req, res, next){
-  try{
+router.get('/:id', async function (req, res, next) {
+  try {
     const id = req.params.id;
     const job = await Job.get(id);
 
@@ -56,10 +56,10 @@ router.get('/:id', async function(req, res, next){
  * 
  * Throws an error if information given is incorrect
  */
-router.post('/', ensureLoggedIn, isAdmin, async function(req, res, next){
-  try{
+router.post('/', ensureLoggedIn, isAdmin, async function (req, res, next) {
+  try {
     const result = jsonschema.validate(req.body, jobSchema);
-    
+
     if (!result.valid) {
       let listOfErrors = result.errors.map(error => error.stack);
       throw new ExpressError(listOfErrors, 400);
@@ -85,15 +85,15 @@ router.post('/', ensureLoggedIn, isAdmin, async function(req, res, next){
  * Throw an error if job is not found, or if information
  * given is incorrect
  */
-router.patch('/:id', ensureLoggedIn, isAdmin, async function(req, res, next){
-  try{
+router.patch('/:id', ensureLoggedIn, isAdmin, async function (req, res, next) {
+  try {
     const result = jsonschema.validate(req.body, jobPatchSchema);
-    
+
     if (!result.valid) {
       let listOfErrors = result.errors.map(error => error.stack);
       throw new ExpressError(listOfErrors, 400);
     }
-    
+
     const expectedKeys = ["title", "salary", "equity"];
     const id = req.params.id;
     const colsToUpdate = req.body;
@@ -113,8 +113,8 @@ router.patch('/:id', ensureLoggedIn, isAdmin, async function(req, res, next){
  * 
  * Throws an error if job is not found
  */
-router.delete('/:id', ensureLoggedIn, isAdmin, async function(req, res, next){
-  try{
+router.delete('/:id', ensureLoggedIn, isAdmin, async function (req, res, next) {
+  try {
     const id = req.params.id;
     const message = await Job.delete(id);
 

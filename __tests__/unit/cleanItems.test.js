@@ -1,7 +1,7 @@
 const cleanItems = require('../../helpers/cleanItems');
 
-describe("cleans object passed to make queries", function() {
-  describe("cleanItems()", function (){
+describe("cleans object passed to make queries", function () {
+  describe("cleanItems()", function () {
     const items = {
       itemOne: "one",
       itemTwo: "two",
@@ -40,11 +40,11 @@ describe("cleans object passed to make queries", function() {
     );
 
     test("should generate an empty object when there are no needed keys",
-    function () {
-      const neededKeys = [];
-      let cleanedItems = cleanItems(items, neededKeys);
-      expect(cleanedItems).toEqual({});
-    }
-  );
+      function () {
+        const neededKeys = [];
+        let cleanedItems = cleanItems(items, neededKeys);
+        expect(cleanedItems).toEqual({});
+      }
+    );
   });
 });

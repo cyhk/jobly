@@ -2,9 +2,9 @@ const { BCRYPT_WORK_FACTOR } = require("../config");
 const bcrypt = require("bcrypt");
 const db = require("../db");
 const ExpressError = require("../helpers/expressError");
-const { sqlForPartialUpdate, 
-          createValues 
-      } = require('../helpers/queryHelpers');
+const { sqlForPartialUpdate,
+  createValues
+} = require('../helpers/queryHelpers');
 
 class User {
   /**
@@ -13,9 +13,9 @@ class User {
    * Output: { token }
    */
   static async create(details) {
-    const expectedCols = ["username", "first_name", "last_name", 
+    const expectedCols = ["username", "first_name", "last_name",
       "email", "photo_url"];
-    
+
     details.password = await bcrypt.hash(details.password, BCRYPT_WORK_FACTOR);
 
     const { query, values } = createValues(details, "users", expectedCols);
@@ -52,7 +52,7 @@ class User {
       `SELECT username, first_name, last_name, email, photo_url
         FROM users
         WHERE username = $1`,
-        [username]
+      [username]
     );
 
     if (result.rowCount === 0) {
@@ -77,7 +77,7 @@ class User {
     }
 
     const { query, values } = sqlForPartialUpdate("users",
-        valsToUpdate, "username", usr);
+      valsToUpdate, "username", usr);
     const result = await db.query(query, values);
 
     if (result.rowCount === 0) {
@@ -85,7 +85,7 @@ class User {
     }
 
     const { username, first_name, last_name,
-             email, photo_url } = result.rows[0];
+      email, photo_url } = result.rows[0];
     const updatedUser = {
       username,
       first_name,
@@ -156,7 +156,7 @@ class User {
       `SELECT is_admin
         FROM users
         WHERE username = $1`,
-        [username]
+      [username]
     );
 
     if (result.rowCount === 0) {

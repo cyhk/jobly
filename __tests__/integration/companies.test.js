@@ -5,7 +5,9 @@ const { TOKEN, ADMIN_TOKEN } = require("../../config");
 
 describe("Test Company Routes", () => {
   beforeEach(async function () {
+    await db.query(`DELETE FROM jobs`);
     await db.query(`DELETE FROM companies`);
+
     await db.query(`
       INSERT INTO companies (handle, name, employees, description, logo_url)
       VALUES ('TEST1', 'Test1 Co. Ltd', 49, 'A test company for tests', 'https://bit.ly/2LWkdq5');
@@ -75,12 +77,12 @@ describe("Test Company Routes", () => {
       async function () {
         const response = await request(app)
           .get("/companies")
-          .query({ 
+          .query({
             search: 'Test',
             min_employees: 1,
             max_employees: 100,
             _token: TOKEN
-         });
+          });
         const companies = response.body;
 
         expect(response.statusCode).toBe(200);
@@ -102,10 +104,10 @@ describe("Test Company Routes", () => {
       async function () {
         const response = await request(app)
           .get("/companies")
-          .query({ 
+          .query({
             search: 'Test1',
             _token: TOKEN
-         });
+          });
         const companies = response.body;
 
         expect(response.statusCode).toBe(200);
@@ -124,7 +126,7 @@ describe("Test Company Routes", () => {
       async function () {
         const response = await request(app)
           .get("/companies")
-          .query({ 
+          .query({
             search: 'asdlkfasd',
             _token: TOKEN
           });
@@ -139,7 +141,7 @@ describe("Test Company Routes", () => {
       async function () {
         const response = await request(app)
           .get("/companies")
-          .query({ 
+          .query({
             min_employees: 100,
             _token: TOKEN
           });
@@ -160,7 +162,7 @@ describe("Test Company Routes", () => {
       async function () {
         const response = await request(app)
           .get("/companies")
-          .query({ 
+          .query({
             min_employees: 10000,
             _token: TOKEN
           });
@@ -184,14 +186,16 @@ describe("Test Company Routes", () => {
         const companies = response.body;
 
         expect(response.statusCode).toBe(200);
-        expect(companies).toEqual({ companies: [{
-          handle: "TEST1",
-          name: "Test1 Co. Ltd"
-        },
+        expect(companies).toEqual({
+          companies: [{
+            handle: "TEST1",
+            name: "Test1 Co. Ltd"
+          },
           {
             handle: "TEST3",
             name: "Test3 Co. Ltd"
-          }]});
+          }]
+        });
       }
     );
 
@@ -212,11 +216,11 @@ describe("Test Company Routes", () => {
       }
     );
 
-    test("should throw an error with bad inputs", 
+    test("should throw an error with bad inputs",
       async function () {
         const response = await request(app)
           .get("/companies")
-          .query({ 
+          .query({
             max_employees: 1,
             min_employees: 10,
             _token: TOKEN
@@ -247,13 +251,15 @@ describe("Test Company Routes", () => {
         const company = response.body;
 
         expect(response.statusCode).toBe(200);
-        expect(company).toEqual({company: {
-          handle: "EARTH",
-          name: "Planet Earth",
-          employees: 13,
-          description: "Is this a real company?",
-          logo_url: ""
-        }});
+        expect(company).toEqual({
+          company: {
+            handle: "EARTH",
+            name: "Planet Earth",
+            employees: 13,
+            description: "Is this a real company?",
+            logo_url: ""
+          }
+        });
       }
     );
 
@@ -278,7 +284,7 @@ describe("Test Company Routes", () => {
       }
     );
 
-    test("should throw an error with bad inputs", 
+    test("should throw an error with bad inputs",
       async function () {
         const response = await request(app)
           .post("/companies")
@@ -293,11 +299,11 @@ describe("Test Company Routes", () => {
         expect(companies).toEqual({
           status: 400,
           message: [
-                  "instance requires property \"handle\"",
-                  "instance requires property \"name\"",
-                  "instance.employees must have a minimum value of 0",
-                  "instance.logo_url does not conform to the \"uri\" format"
-                  ]
+            "instance requires property \"handle\"",
+            "instance requires property \"name\"",
+            "instance.employees must have a minimum value of 0",
+            "instance.logo_url does not conform to the \"uri\" format"
+          ]
         });
       }
     );
@@ -314,18 +320,20 @@ describe("Test Company Routes", () => {
         const company = response.body;
 
         expect(response.statusCode).toBe(200);
-        expect(company).toEqual({company: {
-          handle: "TEST1",
-          name: "Test1 Co. Ltd",
-          employees: 49,
-          description: "A test company for tests",
-          logo_url: "https://bit.ly/2LWkdq5",
-          jobs: [{
-            id: expect.any(Number),
-            title: "CEO",
-            date_posted: expect.any(String)
-          }]
-        }});
+        expect(company).toEqual({
+          company: {
+            handle: "TEST1",
+            name: "Test1 Co. Ltd",
+            employees: 49,
+            description: "A test company for tests",
+            logo_url: "https://bit.ly/2LWkdq5",
+            jobs: [{
+              id: expect.any(Number),
+              title: "CEO",
+              date_posted: expect.any(String)
+            }]
+          }
+        });
       }
     );
 
@@ -343,7 +351,7 @@ describe("Test Company Routes", () => {
       }
     );
 
-    test("should throw an error if company was not found", 
+    test("should throw an error if company was not found",
       async function () {
         const response = await request(app)
           .get("/companies/LJKD")
@@ -373,13 +381,15 @@ describe("Test Company Routes", () => {
         const company = response.body;
 
         expect(response.statusCode).toBe(200);
-        expect(company).toEqual({ company: {
-          handle: "TEST1",
-          name: "Test1 Co. Ltd",
-          employees: 1000,
-          description: "A test company for tests",
-          logo_url: "https://bit.ly/2LWkdq5"
-        }});
+        expect(company).toEqual({
+          company: {
+            handle: "TEST1",
+            name: "Test1 Co. Ltd",
+            employees: 1000,
+            description: "A test company for tests",
+            logo_url: "https://bit.ly/2LWkdq5"
+          }
+        });
       }
     );
 
@@ -401,14 +411,14 @@ describe("Test Company Routes", () => {
       }
     );
 
-    test("should throw an error if company was not found", 
+    test("should throw an error if company was not found",
       async function () {
         const response = await request(app)
-        .patch("/companies/LJKD")
-        .send({
-          employees: 1000,
-          _token: ADMIN_TOKEN
-        });
+          .patch("/companies/LJKD")
+          .send({
+            employees: 1000,
+            _token: ADMIN_TOKEN
+          });
         const company = response.body;
 
         expect(response.statusCode).toBe(404);
@@ -419,21 +429,21 @@ describe("Test Company Routes", () => {
       }
     );
 
-    test("should throw an error when given bad input", 
+    test("should throw an error when given bad input",
       async function () {
         const response = await request(app)
-        .patch("/companies/LJKD")
-        .send({
-          employees: -3984,
-          logo_url: "hello...",
-          _token: ADMIN_TOKEN
-        });
+          .patch("/companies/LJKD")
+          .send({
+            employees: -3984,
+            logo_url: "hello...",
+            _token: ADMIN_TOKEN
+          });
         const company = response.body;
 
         expect(response.statusCode).toBe(400);
         expect(company).toEqual({
           status: 400,
-          message: [ 
+          message: [
             "instance.employees must have a minimum value of 0",
             "instance.logo_url does not conform to the \"uri\" format"
           ]
@@ -474,8 +484,8 @@ describe("Test Company Routes", () => {
       }
     );
 
-    test("should throw an error if company was not found", 
-      async function() {
+    test("should throw an error if company was not found",
+      async function () {
         const response = await request(app)
           .delete("/companies/LJKD")
           .send({

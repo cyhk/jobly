@@ -15,11 +15,11 @@ const router = new express.Router();
  * 
  * Output: {users: [{ username, first_name, last_name, email }, ...]}
  */
-router.get('/', async function(req, res, next){
-  try{
+router.get('/', async function (req, res, next) {
+  try {
     if (req.user) {
       const users = await User.all();
-  
+
       return res.json({ users });
     } else {
       throw new ExpressError("Unauthorized", 401);
@@ -36,12 +36,12 @@ router.get('/', async function(req, res, next){
  * 
  * Throws an error if user is not found
  */
-router.get('/:username', async function(req, res, next){
-  try{
+router.get('/:username', async function (req, res, next) {
+  try {
     if (req.user) {
       const username = req.params.username;
       const user = await User.get(username);
-  
+
       return res.json({ user });
     } else {
       throw new ExpressError("Unauthorized", 401);
@@ -59,17 +59,17 @@ router.get('/:username', async function(req, res, next){
  * 
  * Throws an error if information given is incorrect
  */
-router.post('/', async function(req, res, next){
-  try{
+router.post('/', async function (req, res, next) {
+  try {
     const result = jsonschema.validate(req.body, userSchema);
-    
+
     if (!result.valid) {
       let listOfErrors = result.errors.map(error => error.stack);
       throw new ExpressError(listOfErrors, 400);
     }
 
     const expectedKeys = ["username", "password", "first_name",
-                          "last_name", "email", "photo_url"];
+      "last_name", "email", "photo_url"];
     const detailsToAdd = req.body;
     const details = cleanItems(detailsToAdd, expectedKeys);
     const user = await User.create(details);
@@ -91,23 +91,23 @@ router.post('/', async function(req, res, next){
  * 
  * Throw an error if user is not found
  */
-router.patch('/:username', ensureLoggedIn, async function(req, res, next){
-  try{
+router.patch('/:username', ensureLoggedIn, async function (req, res, next) {
+  try {
     const username = req.params.username;
     if (req.user.username === username) {
       const result = jsonschema.validate(req.body, userPatchSchema);
-    
+
       if (!result.valid) {
         let listOfErrors = result.errors.map(error => error.stack);
         throw new ExpressError(listOfErrors, 400);
       }
-  
+
       const expectedKeys = ["password", "first_name",
-                            "last_name", "email", "photo_url"];
+        "last_name", "email", "photo_url"];
       const colsToUpdate = req.body;
       const cleanedColsToUpdate = cleanItems(colsToUpdate, expectedKeys);
       const user = await User.update(username, cleanedColsToUpdate);
-  
+
       return res.json({ user });
     } else {
       throw new ExpressError("Unauthorized", 401);
@@ -124,10 +124,10 @@ router.patch('/:username', ensureLoggedIn, async function(req, res, next){
  * 
  * Throws an error if user is not found
  */
-router.delete('/:username', ensureLoggedIn, async function(req, res, next){
-  try{
+router.delete('/:username', ensureLoggedIn, async function (req, res, next) {
+  try {
     const username = req.params.username;
-    console.log(req.user);
+
     if (req.user.username === username) {
       const message = await User.delete(username);
 

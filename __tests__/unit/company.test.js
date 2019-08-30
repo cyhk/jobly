@@ -3,8 +3,8 @@ const Company = require("../../models/company");
 
 describe("Test Company Class", () => {
   beforeEach(async function () {
-    await db.query(`DELETE FROM companies`);
     await db.query(`DELETE FROM jobs`);
+    await db.query(`DELETE FROM companies`);
 
     await db.query(`
       INSERT INTO companies (handle, name, employees, description, logo_url)
@@ -27,6 +27,7 @@ describe("Test Company Class", () => {
           employees: 13,
           description: "Is this a real company?"
         }
+
         const company = await Company.create(newCompany);
 
         expect(company).toEqual({
@@ -52,7 +53,7 @@ describe("Test Company Class", () => {
     );
 
     test("get all companies matching all search filters",
-      async function(){
+      async function () {
         const companies = await Company.all({
           search: "test",
           min_employees: 1,
@@ -66,8 +67,8 @@ describe("Test Company Class", () => {
     );
 
     test("get all companies matching search filter",
-      async function(){
-        const companies = await Company.all({search: "test"});
+      async function () {
+        const companies = await Company.all({ search: "test" });
         expect(companies).toEqual([{
           handle: "TEST1",
           name: "Test1 Co. Ltd"
@@ -76,15 +77,15 @@ describe("Test Company Class", () => {
     );
 
     test("get no companies when search filter does not match",
-      async function(){
-        const companies = await Company.all({search: "LKJS"});
+      async function () {
+        const companies = await Company.all({ search: "LKJS" });
         expect(companies).toEqual([]);
       }
     );
 
     test("get all companies matching min_employees filter",
-      async function(){
-        const companies = await Company.all({min_employees: 2});
+      async function () {
+        const companies = await Company.all({ min_employees: 2 });
         expect(companies).toEqual([{
           handle: "TEST1",
           name: "Test1 Co. Ltd"
@@ -93,15 +94,15 @@ describe("Test Company Class", () => {
     );
 
     test("get no companies when min_employees filter does not match",
-      async function() {
-        const companies = await Company.all({min_employees: 88});
+      async function () {
+        const companies = await Company.all({ min_employees: 88 });
         expect(companies).toEqual([]);
       }
     );
 
     test("get all companies matching max_employees filter",
-      async function(){
-        const companies = await Company.all({max_employees: 100});
+      async function () {
+        const companies = await Company.all({ max_employees: 100 });
         expect(companies).toEqual([{
           handle: "TEST1",
           name: "Test1 Co. Ltd"
@@ -110,20 +111,20 @@ describe("Test Company Class", () => {
     );
 
     test("get all companies matching max_employees filter",
-      async function(){
-        const companies = await Company.all({max_employees: 3});
+      async function () {
+        const companies = await Company.all({ max_employees: 3 });
         expect(companies).toEqual([]);
       }
     );
 
     test("throw error when min employees is bigger than max employees",
-      async () =>  {        
+      async () => {
         await expect(Company.all({
           max_employees: 3,
           min_employees: 100
         }))
-        .rejects
-        .toThrow("Min employees cannot be larger than max employees");
+          .rejects
+          .toThrow("Min employees cannot be larger than max employees");
       }
     );
   });
@@ -148,11 +149,11 @@ describe("Test Company Class", () => {
       }
     );
 
-    test("should throw an error if company was not found", 
-      async () =>  {        
+    test("should throw an error if company was not found",
+      async () => {
         await expect(Company.get("KLJF"))
-        .rejects
-        .toThrow("Company not found");
+          .rejects
+          .toThrow("Company not found");
       }
     );
   });
@@ -176,7 +177,7 @@ describe("Test Company Class", () => {
       }
     );
 
-    test("should throw an error if company was not found", 
+    test("should throw an error if company was not found",
       async () => {
         const valsToUpdate = {
           name: "LotsOfTests Co. Ltd",
@@ -184,8 +185,8 @@ describe("Test Company Class", () => {
         }
 
         await expect(Company.update("KLJF", valsToUpdate))
-        .rejects
-        .toThrow("Company not found");
+          .rejects
+          .toThrow("Company not found");
       }
     );
   });
@@ -199,11 +200,11 @@ describe("Test Company Class", () => {
       }
     );
 
-    test("should throw an error if company was not found", 
+    test("should throw an error if company was not found",
       async () => {
         await expect(Company.delete("KLJF"))
-        .rejects
-        .toThrow("Company not found");
+          .rejects
+          .toThrow("Company not found");
       }
     );
   });

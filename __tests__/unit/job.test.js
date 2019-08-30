@@ -6,12 +6,12 @@ describe("Test Job Class", () => {
   beforeEach(async function () {
     await db.query(`DELETE FROM jobs`);
     await db.query(`DELETE FROM companies`);
-    
+
     await db.query(`
       INSERT INTO companies (handle, name, employees, description, logo_url)
       VALUES ('TEST1', 'Test1 Co. Ltd', 187, 'A test company for tests', 'https://bit.ly/2JFIhMB');
     `);
-    
+
     let response = await db.query(`
       INSERT INTO jobs (title, salary, equity, company_handle)
       VALUES ('CEO', 100.01, 0.3, 'TEST1')
@@ -56,7 +56,7 @@ describe("Test Job Class", () => {
     );
 
     test("get all jobs matching all search filters",
-      async function(){
+      async function () {
         const job = await Job.all({
           search: "CEO",
           min_salary: 100,
@@ -70,8 +70,8 @@ describe("Test Job Class", () => {
     );
 
     test("get all jobs matching search filter",
-      async function(){
-        const jobs = await Job.all({search: "CEO"});
+      async function () {
+        const jobs = await Job.all({ search: "CEO" });
         expect(jobs).toEqual([{
           title: "CEO",
           company_handle: "TEST1"
@@ -80,15 +80,15 @@ describe("Test Job Class", () => {
     );
 
     test("get no jobs when search filter does not match",
-      async function(){
-        const jobs = await Job.all({search: "LKJS"});
+      async function () {
+        const jobs = await Job.all({ search: "LKJS" });
         expect(jobs).toEqual([]);
       }
     );
 
     test("get all jobs matching min_salary filter",
-      async function(){
-        const jobs = await Job.all({min_salary: 2});
+      async function () {
+        const jobs = await Job.all({ min_salary: 2 });
         expect(jobs).toEqual([{
           title: "CEO",
           company_handle: "TEST1"
@@ -97,15 +97,15 @@ describe("Test Job Class", () => {
     );
 
     test("get no jobs when min_salary filter does not match",
-      async function() {
-        const jobs = await Job.all({min_salary: 999999});
+      async function () {
+        const jobs = await Job.all({ min_salary: 999999 });
         expect(jobs).toEqual([]);
       }
     );
 
     test("get all jobs matching min_equity filter",
-      async function(){
-        const jobs = await Job.all({min_equity: 0.2});
+      async function () {
+        const jobs = await Job.all({ min_equity: 0.2 });
         expect(jobs).toEqual([{
           title: "CEO",
           company_handle: "TEST1"
@@ -114,8 +114,8 @@ describe("Test Job Class", () => {
     );
 
     test("get all jobs matching min_equity filter",
-      async function(){
-        const jobs = await Job.all({min_equity: 0.99});
+      async function () {
+        const jobs = await Job.all({ min_equity: 0.99 });
         expect(jobs).toEqual([]);
       }
     );
@@ -137,11 +137,11 @@ describe("Test Job Class", () => {
       }
     );
 
-    test("should throw an error if job was not found", 
-      async () =>  {        
+    test("should throw an error if job was not found",
+      async () => {
         await expect(Job.get(999999))
-        .rejects
-        .toThrow("Job not found");
+          .rejects
+          .toThrow("Job not found");
       }
     );
   });
@@ -165,15 +165,15 @@ describe("Test Job Class", () => {
       }
     );
 
-    test("should throw an error if job was not found", 
+    test("should throw an error if job was not found",
       async () => {
         const valsToUpdate = {
           salary: 100000
         }
 
         await expect(Job.update(999999, valsToUpdate))
-        .rejects
-        .toThrow("Job not found");
+          .rejects
+          .toThrow("Job not found");
       }
     );
   });
@@ -187,11 +187,11 @@ describe("Test Job Class", () => {
       }
     );
 
-    test("should throw an error if job was not found", 
+    test("should throw an error if job was not found",
       async () => {
         await expect(Job.delete(999999))
-        .rejects
-        .toThrow("Job not found");
+          .rejects
+          .toThrow("Job not found");
       }
     );
   });

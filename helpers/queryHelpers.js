@@ -36,7 +36,7 @@ function searchQuery(filters, selectCols, table) {
   if (columns !== "") {
     query += ` WHERE ${columns}`;
   }
-  
+
   return { query, values };
 }
 
@@ -50,7 +50,7 @@ function createValues(details, table, allColumns) {
   let cols = Object.keys(details);
   let indices = [];
   let values = [];
-  
+
   for (let key in details) {
     values.push(details[key]);
     indices.push(`$${idx++}`);
@@ -62,7 +62,7 @@ function createValues(details, table, allColumns) {
 
   let query = `INSERT INTO ${table} (${columns}) VALUES (${idxArr})`
   query += ` RETURNING ${allCols}`
-  console.log(query);
+
   return { query, values };
 }
 

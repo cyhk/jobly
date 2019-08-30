@@ -15,7 +15,7 @@ router.post('/login', async function (req, res, next) {
     const { username, password } = req.body;
     // if credentials are not correct, User.authenticate should throw an error
     await User.authenticate(username, password);
-    
+
     const is_admin = await User.getAdminStatus(username);
 
     let payload = { username, is_admin };

@@ -1,10 +1,10 @@
-const { sqlForPartialUpdate, 
-    searchQuery, 
-    createValues 
-  } = require('../../helpers/queryHelpers');
+const { sqlForPartialUpdate,
+  searchQuery,
+  createValues
+} = require('../../helpers/queryHelpers');
 
-describe("Query helper functions", function() {
-  describe("searchQuery()", function (){
+describe("Query helper functions", function () {
+  describe("searchQuery()", function () {
     test("should generate a proper query given one value",
       function () {
         const filters = {
@@ -13,9 +13,9 @@ describe("Query helper functions", function() {
         const selectCols = ["colOne", "numbers"];
         let queryAndVals = searchQuery(filters, selectCols, "test_table");
         expect(queryAndVals).toEqual({
-        query: "SELECT colOne, numbers FROM test_table WHERE " +
-               "colOne ILIKE $1",
-        values: ["%one%"]
+          query: "SELECT colOne, numbers FROM test_table WHERE " +
+            "colOne ILIKE $1",
+          values: ["%one%"]
         });
       }
     );
@@ -30,27 +30,27 @@ describe("Query helper functions", function() {
         const selectCols = ["colOne", "numbers"];
         let queryAndVals = searchQuery(filters, selectCols, "test_table");
         expect(queryAndVals).toEqual({
-        query: "SELECT colOne, numbers FROM test_table WHERE " +
-               "colOne ILIKE $1 AND numbers >= $2 AND numbers <= $3",
-        values: ["%one%", 100, 1000]
+          query: "SELECT colOne, numbers FROM test_table WHERE " +
+            "colOne ILIKE $1 AND numbers >= $2 AND numbers <= $3",
+          values: ["%one%", 100, 1000]
         });
       }
     );
 
     test("should generate a proper query given no values",
-    function () {
-      const filters = {};
-      const selectCols = ["colOne", "numbers"];
-      let queryAndVals = searchQuery(filters, selectCols, "test_table");
-      expect(queryAndVals).toEqual({
-      query: "SELECT colOne, numbers FROM test_table",
-      values: []
-      });
-    }
-  );
+      function () {
+        const filters = {};
+        const selectCols = ["colOne", "numbers"];
+        let queryAndVals = searchQuery(filters, selectCols, "test_table");
+        expect(queryAndVals).toEqual({
+          query: "SELECT colOne, numbers FROM test_table",
+          values: []
+        });
+      }
+    );
   });
 
-  describe("createValues()", function (){
+  describe("createValues()", function () {
     test("should generate a proper query given one value",
       function () {
         const details = {
@@ -61,9 +61,9 @@ describe("Query helper functions", function() {
 
         let queryAndVals = createValues(details, "test_table", allCols);
         expect(queryAndVals).toEqual({
-        query: "INSERT INTO test_table (colOne) " +
-                "VALUES ($1) RETURNING colOne, colTwo, colThree",
-        values: ["one"]
+          query: "INSERT INTO test_table (colOne) " +
+            "VALUES ($1) RETURNING colOne, colTwo, colThree",
+          values: ["one"]
         });
       }
     );
@@ -80,9 +80,9 @@ describe("Query helper functions", function() {
 
         let queryAndVals = createValues(details, "test_table", allCols);
         expect(queryAndVals).toEqual({
-        query: "INSERT INTO test_table (colOne, colTwo, colThree) " +
-                "VALUES ($1, $2, $3) RETURNING colOne",
-        values: ["one", "two", "three"]
+          query: "INSERT INTO test_table (colOne, colTwo, colThree) " +
+            "VALUES ($1, $2, $3) RETURNING colOne",
+          values: ["one", "two", "three"]
         });
       }
     );
@@ -95,46 +95,46 @@ describe("Query helper functions", function() {
 
         let queryAndVals = createValues(details, "test_table", allCols);
         expect(queryAndVals).toEqual({
-        query: "INSERT INTO test_table () " +
-                "VALUES () RETURNING ",
-        values: []
+          query: "INSERT INTO test_table () " +
+            "VALUES () RETURNING ",
+          values: []
         });
       }
     );
   });
 
-  describe("partialUpdate()", function (){
+  describe("partialUpdate()", function () {
     test("should generate a proper partial update query with just 1 field",
       function () {
         const items = {
           num_employees: 50000,
         };
 
-      let queryAndVals = sqlForPartialUpdate("companies", items, "handle", "TEST");
+        let queryAndVals = sqlForPartialUpdate("companies", items, "handle", "TEST");
 
-      expect(queryAndVals).toEqual({
-        query: 'UPDATE companies SET num_employees=$1 WHERE handle=$2 RETURNING *',
-        values: [50000, 'TEST']
+        expect(queryAndVals).toEqual({
+          query: 'UPDATE companies SET num_employees=$1 WHERE handle=$2 RETURNING *',
+          values: [50000, 'TEST']
+        });
       });
-    });
 
     test("should generate a proper full update with all fields",
       function () {
         const items = {
-        handle: "ABC",
-        name: "Alphabet",
-        num_employees: 244,
-        description: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-        logo_url: "https://www.google.com"
+          handle: "ABC",
+          name: "Alphabet",
+          num_employees: 244,
+          description: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+          logo_url: "https://www.google.com"
         }
 
         let queryAndVals = sqlForPartialUpdate("companies", items, "handle", "TEST");
         expect(queryAndVals).toEqual({
-        query: 
-        "UPDATE companies SET handle=$1, name=$2, " +
-        "num_employees=$3, description=$4, logo_url=$5 WHERE handle=$6 RETURNING *",
-        values: ['ABC', 'Alphabet', 244,
-                    'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'https://www.google.com', 'TEST']
+          query:
+            "UPDATE companies SET handle=$1, name=$2, " +
+            "num_employees=$3, description=$4, logo_url=$5 WHERE handle=$6 RETURNING *",
+          values: ['ABC', 'Alphabet', 244,
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'https://www.google.com', 'TEST']
         });
       }
     );
@@ -146,8 +146,8 @@ describe("Query helper functions", function() {
         let queryAndVals = sqlForPartialUpdate("companies", items, "handle", "TEST");
 
         expect(queryAndVals).toEqual({
-            query: 'UPDATE companies SET  WHERE handle=$1 RETURNING *',
-            values: ['TEST']
+          query: 'UPDATE companies SET  WHERE handle=$1 RETURNING *',
+          values: ['TEST']
         });
       }
     );

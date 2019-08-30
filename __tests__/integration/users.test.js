@@ -12,7 +12,7 @@ describe("Test User Routes", () => {
       VALUES ('testUser1', 'unhashedpassword1', 'One', 'TestOne', 'testOne@test.com', 'https://bit.ly/2LWkdq5');
     `);
   });
-  
+
   describe("GET /users/ - Gets all users", () => {
     test("should get all users if user is authenticated",
       async function () {
@@ -41,7 +41,7 @@ describe("Test User Routes", () => {
         const response = await request(app)
           .get("/users");
         const users = response.body;
-        
+
         expect(response.statusCode).toBe(401);
         expect(users).toEqual({
           message: "Unauthorized",
@@ -62,31 +62,33 @@ describe("Test User Routes", () => {
         const user = response.body;
 
         expect(response.statusCode).toBe(200);
-        expect(user).toEqual({user: {
-          username: "testUser1",
-          first_name: "One",
-          last_name: "TestOne",
-          email: "testOne@test.com",
-          photo_url: "https://bit.ly/2LWkdq5"
-        }});
+        expect(user).toEqual({
+          user: {
+            username: "testUser1",
+            first_name: "One",
+            last_name: "TestOne",
+            email: "testOne@test.com",
+            photo_url: "https://bit.ly/2LWkdq5"
+          }
+        });
       }
     );
 
     test("should not get a user if the user is not authenticated",
-    async function () {
-      const response = await request(app)
-        .get(`/users/testUser1`);
-      const user = response.body;
+      async function () {
+        const response = await request(app)
+          .get(`/users/testUser1`);
+        const user = response.body;
 
-      expect(response.statusCode).toBe(401);
-      expect(user).toEqual({
-        message: "Unauthorized",
-        status: 401
-      });
-    }
-  );
+        expect(response.statusCode).toBe(401);
+        expect(user).toEqual({
+          message: "Unauthorized",
+          status: 401
+        });
+      }
+    );
 
-    test("should throw an error if user was not found", 
+    test("should throw an error if user was not found",
       async function () {
         const response = await request(app)
           .get("/users/notTestUser1")
@@ -126,7 +128,7 @@ describe("Test User Routes", () => {
       }
     );
 
-    test("should throw an error with bad inputs", 
+    test("should throw an error with bad inputs",
       async function () {
         const response = await request(app)
           .post("/users")
@@ -140,12 +142,12 @@ describe("Test User Routes", () => {
         expect(users).toEqual({
           status: 400,
           message: [
-                    "instance requires property \"username\"",
-                    "instance requires property \"first_name\"",
-                    "instance requires property \"last_name\"",
-                    "instance.email does not conform to the \"email\" format",
-                    "instance.photo_url does not conform to the \"uri\" format"
-                  ]
+            "instance requires property \"username\"",
+            "instance requires property \"first_name\"",
+            "instance requires property \"last_name\"",
+            "instance.email does not conform to the \"email\" format",
+            "instance.photo_url does not conform to the \"uri\" format"
+          ]
         });
       }
     );
@@ -161,15 +163,17 @@ describe("Test User Routes", () => {
             _token: TOKEN
           });
         const user = response.body;
-        
+
         expect(response.statusCode).toBe(200);
-        expect(user).toEqual({ user: {
-          username: "testUser1",
-          first_name: "OneTest",
-          last_name: "TestOne",
-          email: "testOne@test.com",
-          photo_url: "https://bit.ly/2LWkdq5"
-        }});
+        expect(user).toEqual({
+          user: {
+            username: "testUser1",
+            first_name: "OneTest",
+            last_name: "TestOne",
+            email: "testOne@test.com",
+            photo_url: "https://bit.ly/2LWkdq5"
+          }
+        });
       }
     );
 
@@ -181,7 +185,7 @@ describe("Test User Routes", () => {
             first_name: "OneTest"
           });
         const user = response.body;
-        
+
         expect(response.statusCode).toBe(401);
         expect(user).toEqual({
           message: "Unauthorized",
@@ -190,14 +194,14 @@ describe("Test User Routes", () => {
       }
     );
 
-    test("should throw an error if user is not logged in user", 
+    test("should throw an error if user is not logged in user",
       async function () {
         const response = await request(app)
-        .patch("/users/NotTestUser1")
-        .send({
-          first_name: "OneTest",
-          _token: TOKEN
-        });
+          .patch("/users/NotTestUser1")
+          .send({
+            first_name: "OneTest",
+            _token: TOKEN
+          });
         const user = response.body;
 
         expect(response.statusCode).toBe(401);
@@ -208,7 +212,7 @@ describe("Test User Routes", () => {
       }
     );
 
-    test("should throw an error with bad inputs", 
+    test("should throw an error with bad inputs",
       async function () {
         const response = await request(app)
           .patch("/users/testUser1")
@@ -223,9 +227,9 @@ describe("Test User Routes", () => {
         expect(users).toEqual({
           status: 400,
           message: [
-                   "instance.email does not conform to the \"email\" format",
-                   "instance.photo_url does not conform to the \"uri\" format",
-                   ]
+            "instance.email does not conform to the \"email\" format",
+            "instance.photo_url does not conform to the \"uri\" format",
+          ]
         });
       }
     );
@@ -260,8 +264,8 @@ describe("Test User Routes", () => {
       }
     );
 
-    test("should throw an error if user is not logged-in user", 
-      async function() {
+    test("should throw an error if user is not logged-in user",
+      async function () {
         const response = await request(app)
           .delete("/users/NotTestUser1")
           .send({
