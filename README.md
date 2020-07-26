@@ -1,7 +1,7 @@
 # Jobly
 A back-end for a job board built with Express.
 
-For the front end built with React, visit [react-jobly](https://github.com/cyhk/react-jobly)
+This project was done as a solo exercise. For the React front end, pair programmed with [Andrew Li](https://github.com/andrewsli), visit [react-jobly](https://github.com/cyhk/react-jobly).
 
 # Build status
 [![Build Status](https://travis-ci.com/cyhk/jobly.svg?branch=master)](https://travis-ci.com/cyhk/jobly.svg?branch=master)
