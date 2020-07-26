@@ -25,6 +25,10 @@ Install all dependencies:
 ```
 npm install
 ```
+To start:
+```
+npm start
+```
 
 To run tests:
 ```
