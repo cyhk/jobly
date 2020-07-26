@@ -1,5 +1,5 @@
 # Jobly
-A back-end for a job board built with Express.
+A back-end for a job board built with Node, Express, with a PostgreSQL database.
 
 This project was done as a solo exercise. For the React front end, pair programmed with [Andrew Li](https://github.com/andrewsli), visit [react-jobly](https://github.com/cyhk/react-jobly).
 
@@ -8,6 +8,7 @@ This project was done as a solo exercise. For the React front end, pair programm
 
 # Tech/framework used
 **Built with:**
+- Node
 - Express
 - PostgreSQL
 
