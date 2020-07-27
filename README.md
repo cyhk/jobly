@@ -2,8 +2,6 @@
 
 A backend for a job board built with Node, Express, with a PostgreSQL database.
 
-A deployed version for this backend can be found [here](https://cyhk-jobly.herokuapp.com/).
-
 This project was done as a solo exercise. For the React frontend, pair programmed with [Andrew Li](https://github.com/andrewsli), visit [react-jobly](https://github.com/cyhk/react-jobly).
 
 # Build status
