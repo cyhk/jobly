@@ -1,6 +1,6 @@
 /**
  * Makes query to select for rows based on given filters
- * 
+ *
  * Returns { query, values }
  */
 function searchQuery(filters, selectCols, table) {
@@ -10,17 +10,15 @@ function searchQuery(filters, selectCols, table) {
 
   for (let name in filters) {
     if (filters[name] !== undefined) {
-      actionTerm = name.split('_');
+      actionTerm = name.split("_");
       if (typeof filters[name] === "string") {
         cols.push(`${actionTerm[1]} ILIKE $${idx}`);
         values.push(`%${filters[name]}%`);
-      }
-      else if (typeof filters[name] === "number") {
+      } else if (typeof filters[name] === "number") {
         if (actionTerm[0].includes("min")) {
           cols.push(`${actionTerm[1]} >= $${idx}`);
           values.push(filters[name]);
-        }
-        else if (actionTerm[0].includes("max")) {
+        } else if (actionTerm[0].includes("max")) {
           cols.push(`${actionTerm[1]} <= $${idx}`);
           values.push(filters[name]);
         }
@@ -42,7 +40,7 @@ function searchQuery(filters, selectCols, table) {
 
 /**
  * Makes query for inserting row into table
- * 
+ *
  * Returns { query, values }
  */
 function createValues(details, table, allColumns) {
@@ -56,15 +54,19 @@ function createValues(details, table, allColumns) {
     indices.push(`$${idx++}`);
   }
 
-  let columns = cols.join(', ');
-  let idxArr = indices.join(', ');
-  let allCols = allColumns.join(', ');
+  let columns = cols.join(", ");
+  let idxArr = indices.join(", ");
+  let allCols = allColumns.join(", ");
 
-  let query = `INSERT INTO ${table} (${columns}) VALUES (${idxArr})`
-  query += ` RETURNING ${allCols}`
+  let query = `INSERT INTO ${table} (${columns}) VALUES (${idxArr})`;
+  query += ` RETURNING ${allCols}`;
 
   return { query, values };
 }
+
+/**
+ * The following was provided as starter code
+ **/
 
 /**
  * Generate a selective update query based on a request body:

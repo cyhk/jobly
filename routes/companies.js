@@ -5,19 +5,18 @@ const jsonschema = require("jsonschema");
 const companySchema = require("../schemas/companySchema.json");
 const companyPatchSchema = require("../schemas/companyPatchSchema.json");
 const cleanItems = require("../helpers/cleanItems");
-const { ensureLoggedIn,
-  isAdmin } = require("../helpers/authMiddleware");
+const { ensureLoggedIn, isAdmin } = require("../helpers/authMiddleware");
 const router = new express.Router();
 
 /**
  * GET / - get all companies matching filters, if any.
  * Returns all companies if there are no filters
- * 
+ *
  * filters: { [search], [min_employees], [max_equity] }
- * 
- * Output: { companies: [{handle, name}, ...]}
+ *
+ * Output: { companies: [{handle (string), name (string)}, ...]}
  */
-router.get('/', async function (req, res, next) {
+router.get("/", async function (req, res, next) {
   try {
     if (req.user) {
       const neededKeys = ["search", "min_employees", "max_employees"];
@@ -36,12 +35,12 @@ router.get('/', async function (req, res, next) {
 
 /**
  * GET /:handle - retrieves a specfic company
- * 
- * Output: { company: { handle, name, employees, description, logo_url }
- * 
+ *
+ * Output: { company: { handle (string), name (string), employees (number), description (string), logo_url (string) }
+ *
  * Throws an error if company is not found
  */
-router.get('/:handle', async function (req, res, next) {
+router.get("/:handle", async function (req, res, next) {
   try {
     if (req.user) {
       const handle = req.params.handle;
@@ -58,22 +57,28 @@ router.get('/:handle', async function (req, res, next) {
 
 /**
  * POST / - creates a new company based on given information.
- * 
- * Input: { handle, name, [employees], [description], [logo_url] }
- * Output: { company: { handle, name, employees, description, logo_url }}
- * 
+ *
+ * Input: { handle (string), name (string), [employees (number)], [description (string)], [logo_url (string)] }
+ * Output: { company: { handle (string), name (string), employees (number), description (string), logo_url (string) }}
+ *
  * Throws an error if information given is incorrect
  */
-router.post('/', ensureLoggedIn, isAdmin, async function (req, res, next) {
+router.post("/", ensureLoggedIn, isAdmin, async function (req, res, next) {
   try {
     const result = jsonschema.validate(req.body, companySchema);
 
     if (!result.valid) {
-      let listOfErrors = result.errors.map(error => error.stack);
+      let listOfErrors = result.errors.map((error) => error.stack);
       throw new ExpressError(listOfErrors, 400);
     }
 
-    const expectedKeys = ["handle", "name", "employees", "description", "logo_url"];
+    const expectedKeys = [
+      "handle",
+      "name",
+      "employees",
+      "description",
+      "logo_url",
+    ];
     const detailsToAdd = req.body;
     const details = cleanItems(detailsToAdd, expectedKeys);
     const company = await Company.create(details);
@@ -86,19 +91,23 @@ router.post('/', ensureLoggedIn, isAdmin, async function (req, res, next) {
 
 /**
  * PATCH /:handle - updates existing company
- * 
- * Input: { [name], [employees], [description], [logo_url] }
- * Output: { company: { handle, name, employees, description, logo_url }}
- * 
+ *
+ * Input: { [name (string)], [employees (number)], [description (string)], [logo_url (string)] }
+ * Output: { company: { handle (string), name (string), employees (number), description (string), logo_url (string) }}
+ *
  * Throw an error if company is not found, or if information
  * given is incorrect
  */
-router.patch('/:handle', ensureLoggedIn, isAdmin, async function (req, res, next) {
+router.patch("/:handle", ensureLoggedIn, isAdmin, async function (
+  req,
+  res,
+  next
+) {
   try {
     const result = jsonschema.validate(req.body, companyPatchSchema);
 
     if (!result.valid) {
-      let listOfErrors = result.errors.map(error => error.stack);
+      let listOfErrors = result.errors.map((error) => error.stack);
       throw new ExpressError(listOfErrors, 400);
     }
 
@@ -116,12 +125,16 @@ router.patch('/:handle', ensureLoggedIn, isAdmin, async function (req, res, next
 
 /**
  * DELETE /:handle - removes an existing company
- * 
+ *
  * Output: { message: "Company deleted" }
- * 
+ *
  * Throws an error if company is not found
  */
-router.delete('/:handle', ensureLoggedIn, isAdmin, async function (req, res, next) {
+router.delete("/:handle", ensureLoggedIn, isAdmin, async function (
+  req,
+  res,
+  next
+) {
   try {
     const handle = req.params.handle;
     const message = await Company.delete(handle);
@@ -131,6 +144,5 @@ router.delete('/:handle', ensureLoggedIn, isAdmin, async function (req, res, nex
     next(err);
   }
 });
-
 
 module.exports = router;

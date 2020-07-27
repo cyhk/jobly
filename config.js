@@ -1,3 +1,7 @@
+/**
+ * The following was provided as starter code
+ **/
+
 /** Shared config for application; can be req'd many places. */
 
 require("dotenv").config();
@@ -15,8 +19,7 @@ const PORT = +process.env.PORT || 3000;
 // - in testing, 'jobly-test'
 // - else: 'jobly'
 
-let DB_URI = process.env.NODE_ENV === "test" ?
-  "jobly-test" : "jobly"
+let DB_URI = process.env.NODE_ENV === "test" ? "jobly-test" : "jobly";
 
 module.exports = {
   SECRET_KEY,
@@ -24,5 +27,5 @@ module.exports = {
   ADMIN_TOKEN,
   BCRYPT_WORK_FACTOR,
   PORT,
-  DB_URI
+  DB_URI,
 };

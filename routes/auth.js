@@ -7,10 +7,11 @@ const router = new express.Router();
 /**
  * POST /login - logs the user in
  * Returns a JWT token
- * 
- * Output: { token: token }
+ *
+ * Input: { username (string), password (string) }
+ * Output: { token: token (string) }
  */
-router.post('/login', async function (req, res, next) {
+router.post("/login", async function (req, res, next) {
   try {
     const { username, password } = req.body;
     // if credentials are not correct, User.authenticate should throw an error

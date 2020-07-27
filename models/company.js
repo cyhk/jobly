@@ -1,23 +1,29 @@
-/** 
+/**
  * Company class for jobly
  */
 const db = require("../db");
 const ExpressError = require("../helpers/expressError");
-const { sqlForPartialUpdate,
+const {
+  sqlForPartialUpdate,
   searchQuery,
-  createValues
-} = require('../helpers/queryHelpers');
+  createValues,
+} = require("../helpers/queryHelpers");
 
 class Company {
   /**
    * Create a record of the company in the database.
-   * 
-   * Input: { handle, name, [employees], [description], [logo_url] }
-   * Output: {handle, name, employees, description, logo_url}
+   *
+   * Input: { handle (string), name (string), [employees (number)], [description (string)], [logo_url (string)] }
+   * Output: {handle (string), name (string), employees (number), description (string), logo_url (string)}
    */
   static async create(details) {
-    const expectedCols = ["handle", "name",
-      "employees", "description", "logo_url"];
+    const expectedCols = [
+      "handle",
+      "name",
+      "employees",
+      "description",
+      "logo_url",
+    ];
     const { query, values } = createValues(details, "companies", expectedCols);
     const result = await db.query(query, values);
 
@@ -26,22 +32,27 @@ class Company {
 
   /**
    * Get all companies. If no filters match, returns all companies
-   * 
-   * Input: { [search], [min_employees], [max_employees] }
-   * Output: [{handle, name}, ...]
+   *
+   * Input: { [search (string)], [min_employees (number as string)], [max_employees (number as string)] }
+   * Output: [{handle (string), name (string)}, ...]
    */
   static async all(filters) {
     const { min_employees, max_employees } = filters;
     const filterWithNames = {
       search_name: filters.search,
-      min_employees: isNaN(min_employees) ? min_employees : Number(min_employees),
-      max_employees: isNaN(max_employees) ? max_employees : Number(max_employees)
-    }
+      min_employees: isNaN(min_employees)
+        ? min_employees
+        : Number(min_employees),
+      max_employees: isNaN(max_employees)
+        ? max_employees
+        : Number(max_employees),
+    };
 
     if (min_employees > max_employees) {
       throw new ExpressError(
         "Min employees cannot be larger than max employees",
-        400);
+        400
+      );
     }
 
     const selectCols = ["handle", "name"];
@@ -58,10 +69,10 @@ class Company {
 
   /**
    * Get a specific company.
-   * 
-   * Input: handle
-   * Output: { handle, name, employees, description, logo_url }
-   * 
+   *
+   * Input: handle (string)
+   * Output: { handle (string), name (string), employees (number), description (string), logo_url (string) }
+   *
    * Throws an error if company is not found
    */
   static async get(handle) {
@@ -84,7 +95,7 @@ class Company {
         JOIN companies ON company_handle = handle
         WHERE handle = $1`,
       [handle]
-    )
+    );
 
     company.jobs = jobResult.rows;
 
@@ -93,15 +104,19 @@ class Company {
 
   /**
    * Update a specific company.
-   * 
-   * Input: handle, {[name], [employees], [description], [logo_url]}
-   * Output: { handle, name, employees, description, logo_url }
-   * 
+   *
+   * Input: handle (string), {[name (string)], [employees (number)], [description (string)], [logo_url (string)]}
+   * Output: { handle (string), name (string), employees (number), description (string), logo_url (string) }
+   *
    * Throws an error if company is not found
    */
   static async update(handle, valsToUpdate) {
-    const { query, values } = sqlForPartialUpdate("companies",
-      valsToUpdate, "handle", handle);
+    const { query, values } = sqlForPartialUpdate(
+      "companies",
+      valsToUpdate,
+      "handle",
+      handle
+    );
     const result = await db.query(query, values);
 
     if (result.rowCount === 0) {
@@ -113,10 +128,10 @@ class Company {
 
   /**
    * Deletes a specific company.
-   * 
-   * Input: handle
+   *
+   * Input: handle (string)
    * Output: {message: "Company deleted"} upon success
-   * 
+   *
    * Throws an error if company is not found
    */
   static async delete(handle) {
@@ -126,7 +141,7 @@ class Company {
         RETURNING handle;
       `,
       [handle]
-    )
+    );
     if (result.rowCount === 0) {
       throw new ExpressError("Company not found", 404);
     }

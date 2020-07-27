@@ -1,3 +1,7 @@
+/**
+ * The following was provided as starter code
+ **/
+
 /** Express app for jobly. */
 
 const express = require("express");
@@ -11,8 +15,11 @@ app.use(express.json());
 // add logging system
 app.use(morgan("tiny"));
 
-app.use(authenticateJWT);
+/**
+ * The following was added on top of starter code
+ **/
 
+app.use(authenticateJWT);
 
 const companyRoutes = require("./routes/companies");
 const jobRoutes = require("./routes/jobs");
@@ -24,8 +31,12 @@ app.use("/jobs", jobRoutes);
 app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
 
+/**
+ * The following was provided as starter code
+ **/
+
 /** 404 handler */
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   const err = new ExpressError("Not Found", 404);
 
   // pass the error to the next piece of middleware
@@ -33,13 +44,13 @@ app.use(function(req, res, next) {
 });
 
 /** general error handler */
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   console.error(err.stack);
 
   return res.json({
     status: err.status,
-    message: err.message
+    message: err.message,
   });
 });
 

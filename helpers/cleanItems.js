@@ -1,8 +1,8 @@
 /**
  * Function to take out unneeded keys from object
- * 
- * Input: { neededItem, item, ...}, [ neededKey, ...]
- * Output: { neededItem, ...}
+ *
+ * Input: { neededItem, item, ...} (Object), [ neededKey (string), ...]
+ * Output: { neededItem, ...} (Object)
  */
 function cleanItems(items, neededKeys) {
   const cleanedItems = {};

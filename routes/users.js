@@ -11,11 +11,11 @@ const { SECRET_KEY } = require("../config");
 const router = new express.Router();
 
 /**
- * GET / - get all users 
- * 
- * Output: {users: [{ username, first_name, last_name, email }, ...]}
+ * GET / - get all users
+ *
+ * Output: {users: [{ username (string), first_name (string), last_name (string), email (string) }, ...]}
  */
-router.get('/', async function (req, res, next) {
+router.get("/", async function (req, res, next) {
   try {
     if (req.user) {
       const users = await User.all();
@@ -31,12 +31,12 @@ router.get('/', async function (req, res, next) {
 
 /**
  * GET /:username - retrieves a specfic user
- * 
- * Output: { user: { username, first_name, last_name, email, photo_url }}
- * 
+ *
+ * Output: { user: { username (string), first_name (string), last_name (string), email (string), photo_url (string) }}
+ *
  * Throws an error if user is not found
  */
-router.get('/:username', async function (req, res, next) {
+router.get("/:username", async function (req, res, next) {
   try {
     if (req.user) {
       const username = req.params.username;
@@ -53,23 +53,29 @@ router.get('/:username', async function (req, res, next) {
 
 /**
  * POST / - creates a new user based on given information.
- * 
- * Input: { username, password, first_name, last_name, email, [photo_url] }
- * Output: { user: { username, first_name, last_name, email, photo_url }}
- * 
+ *
+ * Input: { username (string), password (string), first_name (string), last_name (string), email (string), [photo_url (string)] }
+ * Output: { token: token (string) }
+ *
  * Throws an error if information given is incorrect
  */
-router.post('/', async function (req, res, next) {
+router.post("/", async function (req, res, next) {
   try {
     const result = jsonschema.validate(req.body, userSchema);
 
     if (!result.valid) {
-      let listOfErrors = result.errors.map(error => error.stack);
+      let listOfErrors = result.errors.map((error) => error.stack);
       throw new ExpressError(listOfErrors, 400);
     }
 
-    const expectedKeys = ["username", "password", "first_name",
-      "last_name", "email", "photo_url"];
+    const expectedKeys = [
+      "username",
+      "password",
+      "first_name",
+      "last_name",
+      "email",
+      "photo_url",
+    ];
     const detailsToAdd = req.body;
     const details = cleanItems(detailsToAdd, expectedKeys);
     const user = await User.create(details);
@@ -85,25 +91,30 @@ router.post('/', async function (req, res, next) {
 
 /**
  * PATCH /:username - updates existing user
- * 
- * Input: { [password], [first_name], [last_name], [email], [photo_url] }
- * Output: { user: { username, first_name, last_name, email, photo_url }}
- * 
+ *
+ * Input: { [password (string)], [first_name (string)], [last_name (string)], [email (string)], [photo_url (string)] }
+ * Output: { user: { username (string), first_name (string), last_name (string), email (string), photo_url (string) }}
+ *
  * Throw an error if user is not found
  */
-router.patch('/:username', ensureLoggedIn, async function (req, res, next) {
+router.patch("/:username", ensureLoggedIn, async function (req, res, next) {
   try {
     const username = req.params.username;
     if (req.user.username === username) {
       const result = jsonschema.validate(req.body, userPatchSchema);
 
       if (!result.valid) {
-        let listOfErrors = result.errors.map(error => error.stack);
+        let listOfErrors = result.errors.map((error) => error.stack);
         throw new ExpressError(listOfErrors, 400);
       }
 
-      const expectedKeys = ["password", "first_name",
-        "last_name", "email", "photo_url"];
+      const expectedKeys = [
+        "password",
+        "first_name",
+        "last_name",
+        "email",
+        "photo_url",
+      ];
       const colsToUpdate = req.body;
       const cleanedColsToUpdate = cleanItems(colsToUpdate, expectedKeys);
       const user = await User.update(username, cleanedColsToUpdate);
@@ -119,12 +130,12 @@ router.patch('/:username', ensureLoggedIn, async function (req, res, next) {
 
 /**
  * DELETE /:username - removes an existing user
- * 
+ *
  * Output: { message: "User deleted" }
- * 
+ *
  * Throws an error if user is not found
  */
-router.delete('/:username', ensureLoggedIn, async function (req, res, next) {
+router.delete("/:username", ensureLoggedIn, async function (req, res, next) {
   try {
     const username = req.params.username;
 

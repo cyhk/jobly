@@ -2,19 +2,26 @@ const { BCRYPT_WORK_FACTOR } = require("../config");
 const bcrypt = require("bcrypt");
 const db = require("../db");
 const ExpressError = require("../helpers/expressError");
-const { sqlForPartialUpdate,
-  createValues
-} = require('../helpers/queryHelpers');
+const {
+  sqlForPartialUpdate,
+  createValues,
+} = require("../helpers/queryHelpers");
 
 class User {
   /**
    * Create a record of the user in the database.
-   * Input: { username, password, first_name, last_name, email, [photo_url], [is_admin] }
-   * Output: { token }
+   * Input: { username (string), password (string), first_name (string), last_name (string),
+   *          email (string), [photo_url (string)], [is_admin (boolean)] }
+   * Output: { username (string), first_name (string), last_name (string), email (string), photo_url (string) }
    */
   static async create(details) {
-    const expectedCols = ["username", "first_name", "last_name",
-      "email", "photo_url"];
+    const expectedCols = [
+      "username",
+      "first_name",
+      "last_name",
+      "email",
+      "photo_url",
+    ];
 
     details.password = await bcrypt.hash(details.password, BCRYPT_WORK_FACTOR);
 
@@ -25,9 +32,9 @@ class User {
   }
 
   /**
-   * Get all users. 
-   * 
-   * Output: [{ username, first_name, last_name, email }, ...]
+   * Get all users.
+   *
+   * Output: [{ username (string), first_name (string), last_name (string), email (string) }, ...]
    */
   static async all() {
     const result = await db.query(
@@ -41,10 +48,10 @@ class User {
 
   /**
    * Get a specific user.
-   * 
-   * Input: username
-   * Output: { username, first_name, last_name, email, photo_url }
-   * 
+   *
+   * Input: username (string)
+   * Output: { username (string), first_name (string), last_name (string), email (string), photo_url (string) }
+   *
    * Throws an error if user is not found
    */
   static async get(username) {
@@ -64,45 +71,57 @@ class User {
 
   /**
    * Update a specific user.
-   * 
-   * Input: username, {[password], [first_name], [last_name], 
-   *                    [email], [photo_url]}
-   * Output: { username, first_name, last_name, email, photo_url }
-   * 
+   *
+   * Input: username (string), {[password (string)], [first_name (string)], [last_name (string)],
+   *                            [email (string)], [photo_url (string)]}
+   * Output: { username (string), first_name (string), last_name (string), email (string), photo_url (string) }
+   *
    * Throws an error if user is not found
    */
   static async update(usr, valsToUpdate) {
     if (valsToUpdate["password"] !== undefined) {
-      valsToUpdate.password = await bcrypt.hash(valsToUpdate.password, BCRYPT_WORK_FACTOR);
+      valsToUpdate.password = await bcrypt.hash(
+        valsToUpdate.password,
+        BCRYPT_WORK_FACTOR
+      );
     }
 
-    const { query, values } = sqlForPartialUpdate("users",
-      valsToUpdate, "username", usr);
+    const { query, values } = sqlForPartialUpdate(
+      "users",
+      valsToUpdate,
+      "username",
+      usr
+    );
     const result = await db.query(query, values);
 
     if (result.rowCount === 0) {
       throw new ExpressError("User not found", 404);
     }
 
-    const { username, first_name, last_name,
-      email, photo_url } = result.rows[0];
+    const {
+      username,
+      first_name,
+      last_name,
+      email,
+      photo_url,
+    } = result.rows[0];
     const updatedUser = {
       username,
       first_name,
       last_name,
       email,
-      photo_url
-    }
+      photo_url,
+    };
 
     return updatedUser;
   }
 
   /**
    * Deletes a specific user.
-   * 
-   * Input: username
+   *
+   * Input: username (string)
    * Returns { message: "User deleted" } upon success
-   * 
+   *
    * Throws an error if user is not found
    */
   static async delete(username) {
@@ -112,7 +131,7 @@ class User {
         RETURNING username;
       `,
       [username]
-    )
+    );
     if (result.rowCount === 0) {
       throw new ExpressError("User not found", 404);
     }
@@ -122,10 +141,10 @@ class User {
 
   /**
    * Verify if the username and password combination is correct
-   * 
-   * Input: username, password
-   * Output: is_admin
-   * 
+   *
+   * Input: username (string), password (string)
+   * Output: boolean
+   *
    * Throws an error if invalid credentials
    */
   static async authenticate(username, password) {
@@ -140,15 +159,15 @@ class User {
 
     let hashedPassword = result.rows[0].password;
 
-    return (await bcrypt.compare(password, hashedPassword));
+    return await bcrypt.compare(password, hashedPassword);
   }
 
   /**
    * Gets is_admin status of user
-   * 
-   * Input: username
-   * Output: is_admin
-   * 
+   *
+   * Input: username (string)
+   * Output: is_admin (boolean)
+   *
    * Throws an error if user not found
    */
   static async getAdminStatus(username) {
