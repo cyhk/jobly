@@ -19,7 +19,13 @@ const PORT = +process.env.PORT || 3000;
 // - in testing, 'jobly-test'
 // - else: 'jobly'
 
-let DB_URI = process.env.NODE_ENV === "test" ? "jobly-test" : "jobly";
+let DB_URI;
+
+if (process.env.NODE_ENV === "test") {
+  DB_URI = "jobly-test";
+} else {
+  DB_URI = process.env.DATABASE_URL || "jobly";
+}
 
 module.exports = {
   SECRET_KEY,

@@ -56,7 +56,7 @@ For all routes requiring login, pass:
 }
 ```
 
-that you received when you log in or create a user.
+that you receive when you log in or create a user.
 
 ## Companies
 
