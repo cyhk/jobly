@@ -50,9 +50,21 @@ jest -i
 
 # API
 
+For all routes requiring login, pass:
+
+```
+{
+  _token: token (string)
+}
+```
+
+that you received when you log in or create a user.
+
 ## Companies
 
 **POST /companies**
+
+Access: Admin only
 
 Creates a company in the database. Takes JSON input:
 
@@ -62,7 +74,7 @@ Creates a company in the database. Takes JSON input:
   name (string),
   [employees (number)],
   [description (string)],
-  [logo_url (string)]
+  [logo_url (string)],
 }
 ```
 
@@ -81,6 +93,8 @@ and returns JSON:
 ```
 
 **GET /companies**
+
+Access: All logged-in users
 
 Returns the handle and name for all matching companies along with associated jobs. If no query string parameters are supplied, the route returns all companies. The route supports the following query string parameters:
 
@@ -104,7 +118,9 @@ Returns JSON:
 
 **GET /companies/:handle**
 
-Returns company matching handle as JSON:
+Access: All logged-in users
+
+Returns company matching handle. Returns the following JSON:
 
 ```
 {
@@ -119,6 +135,8 @@ Returns company matching handle as JSON:
 ```
 
 **PATCH /companies/:handle**
+
+Access: Admin only
 
 Update an existing company. Takes JSON input:
 
@@ -147,6 +165,8 @@ Returns JSON:
 
 **DELETE /companies/:handle**
 
+Access: Admin only
+
 Removes the company from the database. Returns JSON upon success:
 
 ```
@@ -160,6 +180,8 @@ upon success.
 ## Jobs
 
 **_POST /jobs_**
+
+Access: Admin only
 
 Creates a new job. Takes JSON input:
 
@@ -189,6 +211,8 @@ returns JSON:
 
 **_GET /jobs_**
 
+Access: Public
+
 List all matching jobs ordered by most recently posted. If no query string parameters are supplied, the route returns all jobs.
 
 The following query string parameters are supported:
@@ -213,6 +237,8 @@ Returns JSON:
 
 **_GET /jobs/:id_**
 
+Access: Public
+
 Returns job with the specified `id` as JSON:
 
 ```
@@ -229,6 +255,8 @@ Returns job with the specified `id` as JSON:
 ```
 
 **_PATCH /jobs/:id_**
+
+Access: Admin only
 
 Updates a job matching the `id`. Takes JSON input:
 
@@ -259,6 +287,8 @@ and returns JSON:
 
 **_DELETE /jobs/:id_**
 
+Access: Admin only
+
 Deletes the job with `id` from database. Returns JSON upon success:
 
 ```
@@ -270,6 +300,8 @@ Deletes the job with `id` from database. Returns JSON upon success:
 ## Users
 
 **_POST /users_**
+
+Access: Public
 
 Creates a new user. Takes JSON input:
 
@@ -295,6 +327,8 @@ and returns JSON:
 
 **_GET /users_**
 
+Access: All logged-in users
+
 Gets list of users. Returns JSON:
 
 ```
@@ -313,6 +347,8 @@ Gets list of users. Returns JSON:
 
 **_GET /users/:username_**
 
+Access: All logged-in users
+
 Returns user information for `username`. Returns JSON:
 
 ```
@@ -330,6 +366,8 @@ Returns user information for `username`. Returns JSON:
 ```
 
 **_PATCH /users/:username_**
+
+Access: All logged-in users, for their own profiles only
 
 Updates user information for `username`, Takes input
 
@@ -359,6 +397,8 @@ and returns JSON
 
 **_DELETE /users/:username_**
 
+Access: All logged-in users, for their own profiles only
+
 Removes user with `username`. Returns JSON upon success:
 
 ```
@@ -370,6 +410,8 @@ Removes user with `username`. Returns JSON upon success:
 ## Authorization
 
 **_POST /login_**
+
+Access: Public
 
 Authenticates a user and returns a JSON Web Token which contains a payload with the username and is_admin values.
 
