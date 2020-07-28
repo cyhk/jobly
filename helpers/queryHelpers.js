@@ -8,19 +8,19 @@ function searchQuery(filters, selectCols, table) {
   let cols = [];
   let values = [];
 
-  for (let name in filters) {
-    if (filters[name] !== undefined) {
-      actionTerm = name.split("_");
-      if (typeof filters[name] === "string") {
+  for (let filter in filters) {
+    if (filters[filter] !== undefined) {
+      actionTerm = filter.split("_");
+      if (typeof filters[filter] === "string") {
         cols.push(`${actionTerm[1]} ILIKE $${idx}`);
-        values.push(`%${filters[name]}%`);
-      } else if (typeof filters[name] === "number") {
+        values.push(`%${filters[filter]}%`);
+      } else if (typeof filters[filter] === "number") {
         if (actionTerm[0].includes("min")) {
           cols.push(`${actionTerm[1]} >= $${idx}`);
-          values.push(filters[name]);
+          values.push(filters[filter]);
         } else if (actionTerm[0].includes("max")) {
           cols.push(`${actionTerm[1]} <= $${idx}`);
-          values.push(filters[name]);
+          values.push(filters[filter]);
         }
       }
       idx++;

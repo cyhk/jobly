@@ -14,6 +14,7 @@ const router = new express.Router();
 router.post("/login", async function (req, res, next) {
   try {
     const { username, password } = req.body;
+
     // if credentials are not correct, User.authenticate should throw an error
     await User.authenticate(username, password);
 

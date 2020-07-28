@@ -9,9 +9,16 @@ require("dotenv").config();
 const SECRET_KEY = process.env.SECRET_KEY || "test";
 const TOKEN = process.env.TOKEN;
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
-const BCRYPT_WORK_FACTOR = 12;
 
 const PORT = +process.env.PORT || 3000;
+
+let BCRYPT_WORK_FACTOR;
+
+if (process.env.NODE_ENV === "test") {
+  BCRYPT_WORK_FACTOR = 1;
+} else {
+  BCRYPT_WORK_FACTOR = 12;
+}
 
 // database is:
 //

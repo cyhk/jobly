@@ -2,6 +2,8 @@
 
 A backend for a job board built with Node, Express, with a PostgreSQL database.
 
+A deployed version of this backend can be found [here](https://cyhk-jobly.herokuapp.com).
+
 This project was done as a solo exercise. For the React frontend, pair programmed with [Andrew Li](https://github.com/andrewsli), visit [react-jobly](https://github.com/cyhk/react-jobly).
 
 # Build status
@@ -43,7 +45,13 @@ npm start
 To run tests:
 
 ```
-jest -i
+jest -i --verbose
+```
+
+or alternatively, if you want to suppress the console.log output:
+
+```
+jest -i --silent --verbose
 ```
 
 # API
@@ -96,7 +104,7 @@ Access: All logged-in users
 
 Returns the handle and name for all matching companies along with associated jobs. If no query string parameters are supplied, the route returns all companies. The route supports the following query string parameters:
 
-- **search**: filters by handle or name
+- **search**: filters by name
 - **min_employees**: filters for companies with more than or equal to min_employees
 - **max_employees**: filters for companies with less than or equal to max_employees
 
@@ -215,7 +223,7 @@ List all matching jobs ordered by most recently posted. If no query string param
 
 The following query string parameters are supported:
 
-- **search**: filters by title and company handle
+- **search**: filters by title
 - **min_salary**: filters for jobs paying more than a specified minimum salary
 - **min_equity**: filters for jobs with more than a specified minimum equity
 

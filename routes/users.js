@@ -138,7 +138,6 @@ router.patch("/:username", ensureLoggedIn, async function (req, res, next) {
 router.delete("/:username", ensureLoggedIn, async function (req, res, next) {
   try {
     const username = req.params.username;
-
     if (req.user.username === username) {
       const message = await User.delete(username);
 

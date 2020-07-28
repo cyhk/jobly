@@ -48,7 +48,7 @@ class Company {
         : Number(max_employees),
     };
 
-    if (min_employees > max_employees) {
+    if (Number(min_employees) > Number(max_employees)) {
       throw new ExpressError(
         "Min employees cannot be larger than max employees",
         400

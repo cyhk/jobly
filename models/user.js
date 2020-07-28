@@ -143,7 +143,7 @@ class User {
    * Verify if the username and password combination is correct
    *
    * Input: username (string), password (string)
-   * Output: boolean
+   * Output: none (undefined)
    *
    * Throws an error if invalid credentials
    */
@@ -157,9 +157,13 @@ class User {
       throw new ExpressError("Invalid username or password.", 400);
     }
 
-    let hashedPassword = result.rows[0].password;
+    let hashedStoredPassword = result.rows[0].password;
 
-    return await bcrypt.compare(password, hashedPassword);
+    let passwordResult = await bcrypt.compare(password, hashedStoredPassword);
+
+    if (!passwordResult) {
+      throw new ExpressError("Invalid username or password.", 400);
+    }
   }
 
   /**
